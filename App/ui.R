@@ -1,11 +1,15 @@
 # Load packages
 library(shinyBS)
+library(shinyjs)
 
 # ------------------------------ Begin Shiny UI ------------------------------------------
 
-shinyUI(pageWithSidebar(
+shinyUI( fluidPage(
+  useShinyjs(),
   headerPanel("Audimus"),
-  sidebarPanel(
+  
+  
+  div(id = "Sidebar", sidebarPanel(
     
     ### ======================== ###
     ###    Introduction panel    ###
@@ -31,7 +35,7 @@ shinyUI(pageWithSidebar(
                      bsPopover(id="q1", title = "Aantal kanalen",
                                content = paste0("<p>Vul hier het aantal kanalen in die je wilt gebruiken.</p>"),
                                placement = "right", 
-                               trigger = "click",
+                               trigger = "hover",
                                options = list(container = "body")
                      ),
                      # Carrier input
@@ -41,7 +45,7 @@ shinyUI(pageWithSidebar(
                      bsPopover(id="q2", title = "Carrier",
                                content = paste0("<p>Kies hier of je een ruisband of sinus wilt gebruiken.</p>"),
                                placement = "right", 
-                               trigger = "click",
+                               trigger = "hover",
                                options = list(container = "body")),
                      # Input of geluid: either browse for file, or list of given files
                      h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q3 {vertical-align: top;}"),
@@ -59,7 +63,7 @@ shinyUI(pageWithSidebar(
                      bsPopover(id="q3", title = "Geluid kiezen",
                                content = paste0("<p>Je kan hier kiezen voor een voorbeeldgeluid dat reeds opgeladen is, of zelf een wav-file opladen.</p>"),
                                placement = "right", 
-                               trigger = "click",
+                               trigger = "hover",
                                options = list(container = "body"))
                      #fileInput("hoorapparaat_geluidInput2", label = h3(""))
     ),
@@ -78,7 +82,7 @@ shinyUI(pageWithSidebar(
                      bsPopover(id="q4", title = "Aantal kanalen",
                                content = paste0("<p>Vul hier het aantal kanalen in die je wilt gebruiken.</p>"),
                                placement = "right", 
-                               trigger = "click",
+                               trigger = "hover",
                                options = list(container = "body")
                      ),
                      ## Dynamische karakteristieken
@@ -90,7 +94,7 @@ shinyUI(pageWithSidebar(
                                                 "<p>Attack time is de tijd die het compressiesysteem nodig heeft om te reageren bij een toename van het signaal. Deze wordt vaak op 5ms ingesteld.</p>",
                                                 "<p>Release time is de tijd die het compressiesysteem nodig heeft om te reageren bij een afname van het signaal. Deze wordt vaak op 20ms ingesteld.</p>"),
                                placement = "right", 
-                               trigger = "click",
+                               trigger = "hover",
                                options = list(container = "body")),
                      # Attack Time & Release Time
                      fluidRow(
@@ -117,7 +121,7 @@ shinyUI(pageWithSidebar(
                                                 "<p>De statische karakteristieken die je kan veranderen zijn de compressie ratio, de kniepunten en de insertion gain. </p>",
                                                 "<p>The compression ratio describes how much the gain decreases once the input is sufficiently intense. It is defined as the change in input level needed to produce a 1dB change in output level. Commonly, a ratio of 1.5:1 or 3:1 is used in hearing aids. </p>"),
                                placement = "right", 
-                               trigger = "click",
+                               trigger = "hover",
                                options = list(container = "body")),
                      # Kniepunten
                      fluidRow(
@@ -149,14 +153,14 @@ shinyUI(pageWithSidebar(
                      bsPopover(id="q7", title = "Geluid kiezen",
                                content = paste0("<p>Je kan hier kiezen voor een voorbeeldgeluid dat reeds opgeladen is, of zelf een wav-file opladen. </p>"),
                                placement = "right", 
-                               trigger = "click",
+                               trigger = "hover",
                                options = list(container = "body")),
                      # h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q7 {vertical-align: top;}"),
                      #    bsButton("q7", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                      # bsPopover(id="q7", title = "Geluid kiezen",
                      #           content = paste0("<p>Je kan hier kiezen voor een voorbeeldgeluid dat reeds opgeladen is, of zelf een wav-file opladen.</p>"),
                      #           placement = "right", 
-                     #           trigger = "click",
+                     #           trigger = "hover",
                      #           options = list(container = "body")),
                      fluidRow(
                        column(6,  selectInput("hoorapparaat_geluidInput1", label = p(""),
@@ -170,18 +174,36 @@ shinyUI(pageWithSidebar(
                      #                            "Alarm" = 3), selected = 1),
                     
                      #fileInput("hoorapparaat_geluidInput2", label = h3(""))
-    ) 
+    ) )
   ),
   mainPanel(
     tabsetPanel(
+      ### ======================== ###
+      ###    Informatie module   ###
+      ### ======================== ###
       tabPanel("Informatie", value=0, br(), h4("Welkom bij Audimus!"),
                                       p("In deze applicatie kan je meer te weten komen over de werking van een cochleair implantaat (Vocoder) en een hoorapparaat."),
                                       p("Bij beiden kan je ervoor kiezen een voorbeeldgeluid te gebruiken of je eigen wav-file te uploaden."),
                                       p("Je kan bovendien de verschillende parameters instellen en zien hoe de resultaten veranderen. Beluister zeker ook het resulterende geluid.")),
+      
+      ### ======================== ###
+      ###    Vocoder module   ###
+      ### ======================== ###
       tabPanel("Vocoder", value=1, br(), p("Leer hoe een cochleair implantaat werkt door verschillende parameters in te stellen."),
-                                   p("Bekijk hoe de output verandert en beluister het resulterende geluid.")), 
+                                   p("Bekijk hoe de output verandert en beluister het resulterende geluid."),
+               actionButton("playSoundVocoder", "Luister naar het uitgaande signaal"),
+               actionButton("showSideBar", "Toon input"),
+               actionButton("hideSideBar", "Verberg input")), 
+      
+      ### ======================== ###
+      ###    Hoorapparaat module   ###
+      ### ======================== ###
       tabPanel("Hoorapparaat", value=2, br(), p("Leer hoe het compressiesysteem in een hoorapparaat werkt door verschillende parameters in te stellen."),
-                                        p("Bekijk hoe de output verandert en beluister het resulterende geluid")), 
+                                        p("Bekijk hoe de output verandert en beluister het resulterende geluid"),
+               actionButton("playSoundHoorapparaat", "Luister naar het uitgaande signaal"),
+               actionButton("showSideBarH", "Toon input"),
+               actionButton("hideSideBarH", "Verberg input")), 
+      
       id = "conditionedPanels"
     )
   )
