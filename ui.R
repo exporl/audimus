@@ -8,6 +8,11 @@ library(shinyjs)
 
 shinyUI( fluidPage(
   useShinyjs(),
+  extendShinyjs(text = 'shinyjs.hideSidebar = function(params) { $("body").addClass("sidebar-collapse"); 
+              $(window).trigger("resize"); }'),
+  extendShinyjs(text='shinyjs.showSidebar = function(params) { $("body").removeClass("sidebar-collapse"); 
+                  $(window).trigger("resize"); }'),
+  
   headerPanel("Audimus"),
   
   #actionLink("HideInput", "Verberg input"),
@@ -166,7 +171,7 @@ shinyUI( fluidPage(
                      )
     ) )
   ),
-  mainPanel(
+  mainPanel(id = "Main",
     tabsetPanel(
       ### ======================== ###
       ###    Informatie module   ###
@@ -182,7 +187,22 @@ shinyUI( fluidPage(
       tabPanel("Vocoder", value=1, br(), p("Leer hoe een cochleair implantaat werkt door verschillende parameters in te stellen."),
                                    p("Bekijk hoe de output verandert en beluister het resulterende geluid."),
                actionButton("playInputVocoder", "Luister naar het inkomende signaal"),
-               actionButton("playOutputVocoder", "Luister naar het uitgaande signaal")), 
+               actionButton("playOutputVocoder", "Luister naar het uitgaande signaal"),
+               p(""),
+               h4("Bekijk hier de grafieken voor het inkomende en uitgaande signaal"),
+               fluidRow(
+                 splitLayout(cellWidths = c("50%", "50%"), plotOutput("Input_Vocoder"), plotOutput("Output_Vocoder"))
+               ),
+               p(""),
+               h4("Combined"),
+               plotOutput("Combined_graphs")
+               # h4("Bandpass graphs"),
+               # plotOutput("Bandpass_graphs"),
+               # h4("Envelope graphs"),
+               # plotOutput("Envelope_graphs"),
+               # h4("Noiseband graphs"),
+               # plotOutput("Noiseband_graphs")
+               ), 
       
       ### ======================== ###
       ###    Hoorapparaat module   ###
@@ -193,7 +213,10 @@ shinyUI( fluidPage(
                actionButton("playOutputHoorapparaat", "Luister naar het uitgaande signaal"),
                p(""),
                h4("Bekijk hier het IO-diagram:"),
-               plotOutput("IO_diagram")), 
+               plotOutput("IO_diagram"),
+               fluidRow(
+                 splitLayout(cellWidths = c("50%", "50%"), plotOutput("Input_Hoorapparaat"), plotOutput("Output_Hoorapparaat"))
+               )), 
       
       id = "conditionedPanels"
     )
