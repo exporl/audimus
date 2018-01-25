@@ -1,3 +1,5 @@
+### DASHBOARD VERSION
+
 # Clear workspace
 rm(list=ls(all=TRUE)) 
 
@@ -22,12 +24,7 @@ source("C:/Users/anna/Desktop/CW Thesis - Audimus/App/vocoder.R")
 
 kitty <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/cat.wav")
 dog <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/dog.wav")
-pig <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/pig.wav")
 wolf <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/wolf.wav")
-
-
-
-
 
 
 # --------------------------------- Begin Shiny Server ------------------------------
@@ -229,7 +226,7 @@ shinyServer(function(input, output) {
   # })
   # output$Noiseband_graphs <- renderPlot({carrierPlots()})
   
-  output$Combined_graphs <- renderPlot({ resultVocoder()[[5]] })
+  output$Combined_graphs <- renderPlot({ resultVocoder()[[7]] })
   
   
   ### ***************************************************************
@@ -245,16 +242,6 @@ shinyServer(function(input, output) {
     if (input$showpanel_ha) {
       sidebarLayout(
         sidebarPanel(
-          ## Number of channels
-          sliderInput("channelsVocoder", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#q4 {vertical-align: top;}"),
-                                            bsButton("q4", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-                      min = 1, max = 4, step = 1, value = 4),
-          bsPopover(id="q4", title = "Aantal kanalen",
-                    content = paste0("<p>Vul hier het aantal kanalen in die je wilt gebruiken.</p>"),
-                    placement = "right",
-                    trigger = "hover",
-                    options = list(container = "body")
-          ),
           ## Dynamische karakteristieken
           h3("Dynamische karakteristieken", style="color:#191970", tags$style(type = "text/css", "#q5 {vertical-align: top;}"),
              bsButton("q5", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -418,9 +405,9 @@ shinyServer(function(input, output) {
   
   
   ## Plot output signal
-  sound <- reactive({as.audioSample(resultHearingAid())})
-  s2 <- reactive({sound() / 2^(8 - 1)})
-  ha_out <- reactive({(0:(length(sound())-1)) / sound()$rate})
+  sound_ha <- reactive({as.audioSample(resultHearingAid())})
+  s2 <- reactive({sound_ha() / 2^(8 - 1)})
+  ha_out <- reactive({(0:(length(sound_ha())-1)) / sound_ha()$rate})
   ha_out_ms <- reactive({ha_out() * 1000}) ##scale to milliseconds
   Hoorapparaat_outputSignal <- reactive({
     plot(ha_out_ms(), s2(), type="l", col="black", xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  

@@ -1,3 +1,4 @@
+### DASHBOARD VERSION
 # Load packages
 library(shiny)
 library(shinyBS)

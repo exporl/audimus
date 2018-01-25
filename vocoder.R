@@ -61,10 +61,12 @@ vocoder <- function(d,fs,nbands,carrier){
   #out = zeros(length(d),nbands)
   out <- matrix(0,length(d), nbands)
   filter_list <- list(length=nbands)
+  bpfilter_list <- list(length=nbands)
   #gf <- list(length=nbands)
   envelope_list <- list(length=nbands)
   #ge <- list(length=nbands)
   carrier_list <- list(length=nbands)
+  noiseenvl_list <- list(length=nbands)
   #gc <- list(length=nbands)
   #combined_list <- list(length=nbands)
   #noise <- rnorm(length(d),0,1)
@@ -79,6 +81,10 @@ vocoder <- function(d,fs,nbands,carrier){
     filterplot <- plot_filterbank(analysis_filters_B, analysis_filters_A, 'Bandpass')
     filter_list[[i]] <- filterplot
     #gf[i] <- ggplotGrob(filterplot)
+    
+    # BP filtered signal
+    bpfilterplot <- plot_envelope(t, fs, 'BP-Filtered Signal')
+    bpfilter_list[[i]] <- bpfilterplot
     
     # Envelope detection
     t = (t+abs(t))/2
@@ -97,35 +103,56 @@ vocoder <- function(d,fs,nbands,carrier){
     carrier_list[[i]] <- carrierplot
     #gc[i] <- ggplotGrob(carrierplot)
     #combined_list <- plot_grid(filter_list[[i]], envelope_list[[i]], carrier_list[[i]], nrow = nbands, ncol = 3)
+    
+    #noiseenvplot <- plot_envelope(noiseband, fs, "Test")
+    noiseenvplot <- plot_both(t, noiseband, fs, "Both")
+    noiseenvl_list[[i]] <- noiseenvplot
+    
   }
+  nrColumns = 5
   if(nbands == 1){
-    combined_list <- plot_grid(filter_list[[1]], envelope_list[[1]], carrier_list[[1]], nrow = 1, ncol = 3)
+    combined_list <- plot_grid(filter_list[[1]], bpfilter_list[[1]], envelope_list[[1]], carrier_list[[1]], noiseenvl_list[[1]], nrow = 1, ncol = nrColumns)
   }
   if(nbands == 2){
-    second_row <- plot_grid(filter_list[[2]], envelope_list[[2]], carrier_list[[2]], ncol = 3)
-    first_row <- plot_grid(filter_list[[1]], envelope_list[[1]], carrier_list[[1]], ncol = 3)
+    second_row <- plot_grid(filter_list[[2]], bpfilter_list[[2]], envelope_list[[2]], carrier_list[[2]], noiseenvl_list[[2]], ncol = nrColumns)
+    first_row <- plot_grid(filter_list[[1]], bpfilter_list[[1]], envelope_list[[1]], carrier_list[[1]], noiseenvl_list[[1]], ncol = nrColumns)
     combined_list <- plot_grid(first_row, second_row, nrow = 2)
   }
   if(nbands == 3){
-    third_row <- plot_grid(filter_list[[3]], envelope_list[[3]], carrier_list[[3]], ncol = 3)
-    second_row <- plot_grid(filter_list[[2]], envelope_list[[2]], carrier_list[[2]], ncol = 3)
-    first_row <- plot_grid(filter_list[[1]], envelope_list[[1]], carrier_list[[1]], ncol = 3)
+    third_row <- plot_grid(filter_list[[3]], bpfilter_list[[3]], envelope_list[[3]], carrier_list[[3]], noiseenvl_list[[3]], ncol = nrColumns)
+    second_row <- plot_grid(filter_list[[2]], bpfilter_list[[2]], envelope_list[[2]], carrier_list[[2]], noiseenvl_list[[2]], ncol = nrColumns)
+    first_row <- plot_grid(filter_list[[1]], bpfilter_list[[1]], envelope_list[[1]], carrier_list[[1]], noiseenvl_list[[1]], ncol = nrColumns)
     combined_list <- plot_grid(first_row, second_row, third_row, nrow = 3)
   }
   if(nbands == 4){
-    fourth_row <- plot_grid(filter_list[[4]], envelope_list[[4]], carrier_list[[4]], ncol = 3)
-    third_row <- plot_grid(filter_list[[3]], envelope_list[[3]], carrier_list[[3]], ncol = 3)
-    second_row <- plot_grid(filter_list[[2]], envelope_list[[2]], carrier_list[[2]], ncol = 3)
-    first_row <- plot_grid(filter_list[[1]], envelope_list[[1]], carrier_list[[1]], ncol = 3)
+    fourth_row <- plot_grid(filter_list[[4]], bpfilter_list[[4]], envelope_list[[4]], carrier_list[[4]], noiseenvl_list[[4]], ncol = nrColumns)
+  third_row <- plot_grid(filter_list[[3]], bpfilter_list[[3]], envelope_list[[3]], carrier_list[[3]], noiseenvl_list[[3]], ncol = nrColumns)
+    second_row <- plot_grid(filter_list[[2]], bpfilter_list[[2]], envelope_list[[2]], carrier_list[[2]], noiseenvl_list[[2]], ncol = nrColumns)
+    first_row <- plot_grid(filter_list[[1]], bpfilter_list[[1]], envelope_list[[1]], carrier_list[[1]], noiseenvl_list[[1]], ncol = nrColumns)
     combined_list <- plot_grid(first_row, second_row, third_row, fourth_row, nrow = 4)
   }
   
   r=sum(out,2)
   #outputList <- list("res" = r, "plots" = plotList)
   #return(outputList)
-  outputList <- list("r" = r, "fplot" = filter_list, "eplot" = envelope_list, "cplot" = carrier_list, "combined" = combined_list) 
+  outputList <- list("r" = r, "fplot" = filter_list, "bpplot" = bpfilter_list, "eplot" = envelope_list, "cplot" = carrier_list, "noiseenvl" = noiseenvl_list, "combined" = combined_list) 
   #return(r)
   return(outputList)
+}
+
+plot_both <- function(T1, T2, fs, titleName){
+  x <- (c(1:length(T1) - 1)) / fs
+  df <- data.frame("xval" = x, "yval1" = T1, "yval2" = T2)
+  res_plot <- ggplot(data=df, aes(x = xval)) +
+    geom_line(aes(y = yval2), colour="tomato") +
+    geom_line(aes(y = yval1), colour="black") +
+    theme(legend.position="none") +
+    xlab("Time (s)") +
+    ylab("Amplitude") +
+    ggtitle(titleName)
+  #plot(x, T, type="l", xlab = "Time (s)", ylab = "Amplitude", main = titleName)
+  return(res_plot)
+  
 }
 
 
@@ -140,7 +167,8 @@ plot_filterbank <- function(B,A, titleName){
     #plot(f,20*log10(abs(h)), log="x", main = titleName, xlab = "Frequency", ylab = "Magnitude")
     result_plot <- ggplot(df, aes(x = xval, y = yval)) +
       scale_x_log10() +
-      geom_line(aes(color="red")) +
+      coord_cartesian(ylim = c(-100, 0)) +
+      geom_line(colour = "limegreen") +
       theme(legend.position="none") +
       xlab("Frequency") +
       ylab("Magnitude") +
@@ -158,7 +186,7 @@ plot_envelope <- function(T1, fs, titleName) {
   x <- (c(1:length(T1) - 1)) / fs
   df <- data.frame("xval" = x, "yval" = T1)
   res_plot <- ggplot(df, aes(x = xval, y = yval)) +
-    geom_line(aes(color="red")) +
+    geom_line(colour="tomato") +
     theme(legend.position="none") +
     xlab("Time (s)") +
     ylab("Amplitude") +
