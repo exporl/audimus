@@ -22,9 +22,10 @@ source("C:/Users/anna/Desktop/CW Thesis - Audimus/App/vocoder.R")
 
 
 
-kitty <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/cat.wav")
-dog <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/dog.wav")
-wolf <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/wolf.wav")
+#kitty <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/cat.wav")
+#dog <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/dog.wav")
+#wolf <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/wolf.wav")
+
 
 
 # --------------------------------- Begin Shiny Server ------------------------------
@@ -55,9 +56,11 @@ shinyServer(function(input, output) {
   # })
   
   ## Upload wav-files that can be selected for vocoder and hearing aid
-  kitty <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/cat.wav")
-  dog <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/dog.wav")
-  wolf <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/wolf.wav")
+  # hello <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/hello.wav")
+  # silence <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/stilte.wav")
+  # boo <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/boo.wav")
+  # alarm <- load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/alarm.wav")
+  
   
   ### ======================== ###
   ###    Vocoder module   ###
@@ -88,13 +91,15 @@ shinyServer(function(input, output) {
           # Input of geluid: either browse for file, or list of given files
           h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q3 {vertical-align: top;}"),
              bsButton("q3", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-          fluidRow(
-            column(6,  selectInput("vocoder_geluidInput1", label = "",
-                                   choices = list("Cat" = 1, "Dog" = 2, "Wolf" = 3), selected = 1)),
-            column(6, fileInput("vocoder_geluidInput2", label = ""))
-          ),
+          # fluidRow(
+          #   column(6,  selectInput("vocoder_geluidInput1", label = "",
+          #                          choices = list("Cat" = 1, "Dog" = 2, "Wolf" = 3), selected = 1)),
+          #   column(6, fileInput("vocoder_geluidInput2", label = ""))
+          # ),
+          selectInput("vocoder_geluidInput1", label = "",
+                      choices = list("Hello" = 1, "Stilte" = 2, "Boo" = 3, "Alarm" = 4), selected = 1),
           bsPopover(id="q3", title = "Geluid kiezen",
-                    content = paste0("<p>Je kan hier kiezen voor een voorbeeldgeluid dat reeds opgeladen is, of zelf een wav-file opladen.</p>"),
+                    content = paste0("<p>Je kan hier kiezen voor een voorbeeldgeluid dat reeds opgeladen is.</p>"),
                     placement = "right",
                     trigger = "hover",
                     options = list(container = "body"))
@@ -112,7 +117,7 @@ shinyServer(function(input, output) {
             )),
           p(""),
           h4("Combined"),
-          withSpinner(plotOutput("Combined_graphs"))
+          withSpinner(plotOutput("Combined_graphs", height = 750))
         )
       )
       
@@ -130,7 +135,7 @@ shinyServer(function(input, output) {
                  )),
                p(""),
                h4("Combined"),
-               withSpinner(plotOutput("Combined_graphs")))
+               withSpinner(plotOutput("Combined_graphs", height = 750)))
     }
   })
   
@@ -140,9 +145,10 @@ shinyServer(function(input, output) {
   
   ## Make audio variable, depending on input
   audio_vocoder <- reactive({
-    if(input$vocoder_geluidInput1 == 1){ kitty }
-    else if(input$vocoder_geluidInput1 == 2) { dog }
-    else if(input$vocoder_geluidInput1 == 3) { wolf }
+    if(input$vocoder_geluidInput1 == 1){ load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/hello.wav") }
+    else if(input$vocoder_geluidInput1 == 2) { load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/stilte.wav") }
+    else if(input$vocoder_geluidInput1 == 3) { load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/boo.wav") }
+    else if(input$vocoder_geluidInput1 == 4) { load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/alarm.wav") }
   })
   
   ## Play input signal if the button has been clicked
@@ -152,25 +158,33 @@ shinyServer(function(input, output) {
   
   ## Plot input signal
   Vocoder_inputSignal <- reactive({
-    ## cat
+    ## hello
     if(input$vocoder_geluidInput1 == 1){
-      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/cat.wav")
+      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/hello.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
       plot(timeArray, s1, type="l", col="black", xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
     }
-    ## dog
+    ## silence
     else if(input$vocoder_geluidInput1 == 2){ 
-      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/dog.wav")
+      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/stilte.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
       plot(timeArray, s1, type="l", col="black", xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
     }
-    ## wolf
+    ## boo
     else if(input$vocoder_geluidInput1 == 3){
-      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/wolf.wav")
+      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/boo.wav")
+      s1 <- sound@left / 2^(sound@bit - 1)
+      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
+      timeArray <- timeArray * 1000 ##scale to milliseconds
+      plot(timeArray, s1, type="l", col="black", xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
+    }
+    ## alarm
+    else if(input$vocoder_geluidInput1 == 4){
+      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/alarm.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
@@ -211,21 +225,6 @@ shinyServer(function(input, output) {
   
   
   ## Plots
-  # bandpassPlots <- reactive({
-  #     Rmisc::multiplot(plotlist = resultVocoder()[[2]], cols=nrChannels_V())
-  # })
-  # output$Bandpass_graphs <- renderPlot({bandpassPlots()})
-  # 
-  # envelopePlots <- reactive({
-  #   Rmisc::multiplot(plotlist = resultVocoder()[[3]], cols=nrChannels_V())
-  # })
-  # output$Envelope_graphs <- renderPlot({envelopePlots()})
-  # 
-  # carrierPlots <- reactive({
-  #   Rmisc::multiplot(plotlist = resultVocoder()[[4]], cols=nrChannels_V())
-  # })
-  # output$Noiseband_graphs <- renderPlot({carrierPlots()})
-  
   output$Combined_graphs <- renderPlot({ resultVocoder()[[7]] })
   
   
@@ -274,40 +273,44 @@ shinyServer(function(input, output) {
                     options = list(container = "body")),
           # Kniepunten
           fluidRow(
-            column(3,  numericInput("kniepunt1x",
+            column(6,  numericInput("kniepunt1x",
                                     label = h4("Kniepunt 1: x"),
-                                    value = 63)),
-            column(2, numericInput("kniepunt1y",
+                                    value = 30)),
+            column(6, numericInput("kniepunt1y",
                                    label = h4("y"),
-                                   value = 63)),
-            column(3,  numericInput("kniepunt2x",
+                                   value = 30))
+          ),
+          fluidRow(
+            column(6,  numericInput("kniepunt2x",
                                     label = h4("Kniepunt 2: x"),
-                                    value = 123)),
-            column(2, numericInput("kniepunt2y",
+                                    value = 80)),
+            column(6, numericInput("kniepunt2y",
                                    label = h4("y"),
                                    value = 69))
           ),
-          fluidRow(
-            column(5,  numericInput("insertionGain",
-                                    label = h4("Insertion gain"),
-                                    value = 8)),
-            column(5,  numericInput("comprRatio",
-                                    label = h4("Compression ratio (X:1)"),
-                                    value = 3, step = .5))
-          ),
+          # fluidRow(
+          #   column(5,  numericInput("insertionGain",
+          #                           label = h4("Insertion gain"),
+          #                           value = 8)),
+          #   column(5,  numericInput("comprRatio",
+          #                           label = h4("Compression ratio (X:1)"),
+          #                           value = 3, step = .5))
+          # ),
           # Input of geluid: either browse for file, or list of given files
           h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q7 {vertical-align: top;}"),
              bsButton("q7", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+          selectInput("hoorapparaat_geluidInput1", label = "",
+                      choices = list("Hello" = 1, "Stilte" = 2, "Boo" = 3, "Alarm" = 4), selected = 1),
           bsPopover(id="q7", title = "Geluid kiezen",
-                    content = paste0("<p>Je kan hier kiezen voor een voorbeeldgeluid dat reeds opgeladen is, of zelf een wav-file opladen. </p>"),
+                    content = paste0("<p>Je kan hier kiezen voor een voorbeeldgeluid dat reeds opgeladen is. </p>"),
                     placement = "right",
                     trigger = "hover",
-                    options = list(container = "body")),
-          fluidRow(
-            column(6,  selectInput("hoorapparaat_geluidInput1", label = "",
-                                   choices = list("Cat" = 1, "Dog" = 2, "Wolf" = 3), selected = 1)),
-            column(6, fileInput("hoorapparaat_geluidInput2", label = p("")))
-          )
+                    options = list(container = "body"))
+          # fluidRow(
+          #   column(6,  selectInput("hoorapparaat_geluidInput1", label = "",
+          #                          choices = list("Cat" = 1, "Dog" = 2, "Wolf" = 3), selected = 1)),
+          #   column(6, fileInput("hoorapparaat_geluidInput2", label = p("")))
+          # )
         ),
         mainPanel(
           h2("Hoorapparaat"),
@@ -317,9 +320,13 @@ shinyServer(function(input, output) {
           actionButton("playOutputHoorapparaat", "Luister naar het uitgaande signaal"),
           p(""),
           h4("Bekijk hier het IO-diagram:"),
-          withSpinner(plotOutput("IO_diagram")),
+          withSpinner(plotOutput("IO_diagram", height = 500)),
           fluidRow(
-            splitLayout(cellWidths = c("50%", "50%"), withSpinner(plotOutput("Input_Hoorapparaat")), withSpinner(plotOutput("Output_Hoorapparaat")))
+            splitLayout(cellWidths = c("50%", "50%"),
+                        withSpinner(plotOutput("Input_Hoorapparaat", dblclick = "plot1_dblclick",
+                                               brush = brushOpts(id = "plot1_brush", resetOnNew = TRUE))),
+                        withSpinner(plotOutput("Output_Hoorapparaat", dblclick = "plot2_dblclick",
+                                               brush = brushOpts(id = "plot2_brush", resetOnNew = TRUE))))
           )
         )
       )
@@ -332,50 +339,108 @@ shinyServer(function(input, output) {
                actionButton("playOutputHoorapparaat", "Luister naar het uitgaande signaal"),
                p(""),
                h4("Bekijk hier het IO-diagram:"),
-               withSpinner(plotOutput("IO_diagram")),
+               withSpinner(plotOutput("IO_diagram", height = 500)),
                fluidRow(
-                 splitLayout(cellWidths = c("50%", "50%"), withSpinner(plotOutput("Input_Hoorapparaat")), withSpinner(plotOutput("Output_Hoorapparaat")))
-               ))
+                 splitLayout(cellWidths = c("50%", "50%"),
+                             withSpinner(plotOutput("Input_Hoorapparaat", dblclick = "plot1_dblclick",
+                                                    brush = brushOpts(id = "plot1_brush", resetOnNew = TRUE))),
+                             withSpinner(plotOutput("Output_Hoorapparaat", dblclick = "plot2_dblclick",
+                                                    brush = brushOpts(id = "plot2_brush", resetOnNew = TRUE))))
+               )
+               )
     }
   })
   
+  ## Make audio variable, depending on input
+  audio_HA <- reactive({
+    if(input$hoorapparaat_geluidInput1 == 1){ load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/hello.wav") }
+    else if(input$hoorapparaat_geluidInput1 == 2) { load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/stilte.wav") }
+    else if(input$hoorapparaat_geluidInput1 == 3) { load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/boo.wav") }
+    else if(input$hoorapparaat_geluidInput1 == 4) { load.wave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/alarm.wav") }
+  })
   
+  ## Play input signal if the button has been clicked
+  observeEvent(input$playInputHoorapparaat, {
+    audio::play(audio_HA())
+  })
+  
+  ranges_input <- reactiveValues(x = NULL, y = NULL)
   ## Plot input signal
   Hoorapparaat_inputSignal <- reactive({
-    ## cat
+    ## hello
     if(input$hoorapparaat_geluidInput1 == 1){
-      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/cat.wav")
+      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/hello.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
+      df <- data.frame(x = timeArray, y = s1)
+      ggplot(df, aes(x = x, y=y)) +
+        geom_line(aes(x, y), colour = "black") +
+        coord_cartesian(xlim = ranges_input$x, ylim = ranges_input$y, expand = FALSE) +
+        xlab("Time (ms)") +
+        ylab("Amplitude") +
+        ggtitle("Input signal")
     }
-    ## dog
+    ## silence
     else if(input$hoorapparaat_geluidInput1 == 2){ 
-      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/dog.wav")
+      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/stilte.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
+      df <- data.frame(x = timeArray, y = s1)
+      ggplot(df, aes(x = x, y=y)) +
+        geom_line(aes(x, y), colour = "black") +
+        coord_cartesian(xlim = ranges_input$x, ylim = ranges_input$y, expand = FALSE) +
+        xlab("Time (ms)") +
+        ylab("Amplitude") +
+        ggtitle("Input signal")
     }
-    ## wolf
+    ## boo
     else if(input$hoorapparaat_geluidInput1 == 3){
-      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/wolf.wav")
+      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/boo.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
+      df <- data.frame(x = timeArray, y = s1)
+      ggplot(df, aes(x = x, y=y)) +
+        geom_line(aes(x, y), colour = "black") +
+        coord_cartesian(xlim = ranges_input$x, ylim = ranges_input$y, expand = FALSE) +
+        xlab("Time (ms)") +
+        ylab("Amplitude") +
+        ggtitle("Input signal")
+    }
+    ## alarm
+    else if(input$hoorapparaat_geluidInput1 == 4){
+      sound <- tuneR::readWave("C:/Users/anna/Desktop/CW Thesis - Audimus/App/Sounds/alarm.wav")
+      s1 <- sound@left / 2^(sound@bit - 1)
+      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
+      timeArray <- timeArray * 1000 ##scale to milliseconds
+      df <- data.frame(x = timeArray, y = s1)
+      ggplot(df, aes(x = x, y=y)) +
+        geom_line(aes(x, y), colour = "black") +
+        coord_cartesian(xlim = ranges_input$x, ylim = ranges_input$y, expand = FALSE) +
+        xlab("Time (ms)") +
+        ylab("Amplitude") +
+        ggtitle("Input signal")
     }
   })
   
   output$Input_Hoorapparaat <- renderPlot({Hoorapparaat_inputSignal()})
-  
-  ## Play input signal if the button has been clicked
-  observeEvent(input$playInputHoorapparaat, {
-    if(input$hoorapparaat_geluidInput1 == 1){audio::play(kitty)}
-    else if(input$hoorapparaat_geluidInput1 == 2) {audio::play(dog)}
-    else if(input$hoorapparaat_geluidInput1 == 3) {audio::play(wolf)}
+ 
+  # When a double-click happens, check if there's a brush on the plot.
+  # If so, zoom to the brush bounds; if not, reset the zoom.
+  observeEvent(input$plot1_dblclick, {
+    brush <- input$plot1_brush
+    if (!is.null(brush)) {
+      ranges_input$x <- c(brush$xmin, brush$xmax)
+      ranges_input$y <- c(brush$ymin, brush$ymax)
+      
+    } else {
+      ranges_input$x <- NULL
+      ranges_input$y <- NULL
+    }
   })
+  
   
   ## Get parameter values
   attackTime_HA <- reactive({input$attackTime})
@@ -387,15 +452,16 @@ shinyServer(function(input, output) {
   
   ## Call compress function with selected wav-file and selected/configured parameters
   resultHearingAid <- reactive({
-    if(input$hoorapparaat_geluidInput1 == 1) {
-      compress(kitty[1:length(kitty)], list(type='agc'), attackTime_HA(), releaseTime_HA(), kniepunt1_x(), kniepunt1_y(), kniepunt2_x(), kniepunt2_y())
-    }
-    else if(input$hoorapparaat_geluidInput1 == 2) {
-      compress(dog[1:length(dog)], list(type='agc'), attackTime_HA(), releaseTime_HA(), kniepunt1_x(), kniepunt1_y(), kniepunt2_x(), kniepunt2_y())
-    }
-    else if(input$hoorapparaat_geluidInput1 == 3) {
-      compress(wolf[1:length(wolf)], list(type='agc'), attackTime_HA(), releaseTime_HA(), kniepunt1_x(), kniepunt1_y(), kniepunt2_x(), kniepunt2_y())
-    }
+    compress(audio_HA()[1:length(audio_HA())], list(type='agc'), attackTime_HA(), releaseTime_HA(), kniepunt1_x(), kniepunt1_y(), kniepunt2_x(), kniepunt2_y())
+    # if(input$hoorapparaat_geluidInput1 == 1) {
+    #   compress(kitty[1:length(kitty)], list(type='agc'), attackTime_HA(), releaseTime_HA(), kniepunt1_x(), kniepunt1_y(), kniepunt2_x(), kniepunt2_y())
+    # }
+    # else if(input$hoorapparaat_geluidInput1 == 2) {
+    #   compress(dog[1:length(dog)], list(type='agc'), attackTime_HA(), releaseTime_HA(), kniepunt1_x(), kniepunt1_y(), kniepunt2_x(), kniepunt2_y())
+    # }
+    # else if(input$hoorapparaat_geluidInput1 == 3) {
+    #   compress(wolf[1:length(wolf)], list(type='agc'), attackTime_HA(), releaseTime_HA(), kniepunt1_x(), kniepunt1_y(), kniepunt2_x(), kniepunt2_y())
+    # }
   })
   
   ## Play resulting sound if the button has been clicked
@@ -409,23 +475,54 @@ shinyServer(function(input, output) {
   s2 <- reactive({sound_ha() / 2^(8 - 1)})
   ha_out <- reactive({(0:(length(sound_ha())-1)) / sound_ha()$rate})
   ha_out_ms <- reactive({ha_out() * 1000}) ##scale to milliseconds
+  #df_ha <- reactive({data.frame(x = ha_out_ms(), y = s2())})
+  
+  ranges_output <- reactiveValues(x = NULL, y = NULL)
+  
   Hoorapparaat_outputSignal <- reactive({
-    plot(ha_out_ms(), s2(), type="l", col="black", xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
+    # ggplot(df_ha(), aes(x = x, y=y)) +
+    #   geom_line(aes(x, y), colour = "black") +
+    #   coord_cartesian(xlim = ranges_output$x, ylim = ranges_output$y, expand = FALSE) +
+    #   xlab("Time (ms)") +
+    #   ylab("Amplitude") +
+    #   ggtitle("Output signal")
+    plot(ha_out_ms(), s2(), type="l", col="black", xlim = ranges_output$x, ylim = ranges_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
   })
   
   output$Output_Hoorapparaat <- renderPlot({Hoorapparaat_outputSignal()})
   
+  # When a double-click happens, check if there's a brush on the plot.
+  # If so, zoom to the brush bounds; if not, reset the zoom.
+  observeEvent(input$plot2_dblclick, {
+    brush <- input$plot2_brush
+    if (!is.null(brush)) {
+      ranges_output$x <- c(brush$xmin, brush$xmax)
+      ranges_output$y <- c(brush$ymin, brush$ymax)
+      
+    } else {
+      ranges_output$x <- NULL
+      ranges_output$y <- NULL
+    }
+  })
+  
+  
   ## Make IO diagram
+  #End point
+  x_end <- 200
+  y_end <- 95
   df <- reactive({
-    data.frame(x = c(0, kniepunt1_x(), kniepunt2_x()),
-               y = c(0, kniepunt1_y(), kniepunt2_y())
+    data.frame(x = c(0, kniepunt1_x(), kniepunt2_x(), x_end),
+               y = c(0, kniepunt1_y(), kniepunt2_y(), y_end)
     )
   })
   
   IO_plot <- reactive({
     ggplot(df(), aes(x)) + 
-      geom_line(aes(y = y, colour = "y")) +
-      theme(legend.position="none") +
+      geom_line(aes(y = y), colour = "black") +
+      geom_point(aes(y = y), colour = "limegreen", size = 3) + 
+      scale_y_continuous(breaks = seq(0,101,10)) +
+      scale_x_continuous(breaks = seq(0,201,10)) +
+      theme_bw() +
       xlab("Input level (dB SPL)") +
       ylab("Output level (dB SPL)") +
       ggtitle("IO diagram")
