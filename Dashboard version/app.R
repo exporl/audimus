@@ -29,19 +29,20 @@ ui <- navbarPage("Audimus", id = "inTabSet",
                           h4("Een cochleair implantaat stimuleert de gehoorzenuw met behulp van elektrische pulsen. Het wordt voornamelijk
                              gebruikt bij personen waarbij het klassieke hoorapparaat niet meer helpt, aangezien de haarcellen van het
                              binnenoor beschadigd zijn."),
-                    h4("Een hoorapparaat dient dan weer voor mensen die een licht tot matig gehoorverlies hebben."),
-                    h4("Om de applicatie te gebruiken, kan je op 1 van de 2 tabs bovenaan het menu klikken. Aan de linkerzijde vind je de
-                       verschillende parameters die je kan instellen. Aan de rechterzijde vind je dan de output in de vorm van grafieken."),
-                    h4("Je kan ook naar het inkomende of uitgaande signaal luisteren door op de buttons te klikken."),
-                    h4("Wil je inzoomen op de grafieken? Dan kan je met je muis eerst het gebied selecteren waarin je wilt inzoomen en
-                       hierna dubbel te klikken. Uitzoomen doe je dan weer door gewoon zo op de grafiek te dubbelklikken.")
+                          h4("Een hoorapparaat dient dan weer voor mensen die een licht tot matig gehoorverlies hebben."),
+                          h4("Ontdek de modules door op de figuren te klikken!"),
+                          br(),
+                          fluidRow( align = "center",
+                                    actionButton('ci_button', img(src = "CI.jpg"), width = '500px'),
+                                    actionButton('hoorapparaat_button', img(src = "hoorapparaat.jpg"), width = '500px')
+                          )
                        
            ),
            
            ### ======================== ###
            ###    Vocoder module        ###
            ### ======================== ###
-           tabPanel("Vocoder",
+           tabPanel("Vocoder", value = "vocoder_db",
                     fluidPage(
                       bsButton("showpanel_v", "Fullscreen", type = "toggle", value = TRUE),
                       p(""),
@@ -52,7 +53,7 @@ ui <- navbarPage("Audimus", id = "inTabSet",
            ### ======================== ###
            ###    Hoorapparaat module   ###
            ### ======================== ###
-           tabPanel("Hoorapparaat", 
+           tabPanel("Hoorapparaat", value = "hoorapparaat_db",
                     fluidPage(
                       bsButton("showpanel_ha", "Fullscreen", type = "toggle", value = TRUE),
                       p(""),
@@ -64,8 +65,22 @@ ui <- navbarPage("Audimus", id = "inTabSet",
   
 server <- function(input, output, session){
   
+  # Spring van Info naar CI
+  observeEvent(input$ci_button, {
+    updateTabsetPanel(session, "inTabSet",
+                      selected = "vocoder_db")
+  }) 
+  
+  # Spring van Info naar hoorapparaat
+  observeEvent(input$hoorapparaat_button, {
+    updateTabsetPanel(session, "inTabSet",
+                      selected = "hoorapparaat_db")
+  }) 
+  
+  
   # out of 12
   width_sidebar <- 3
+  width_mainpanel <- 9
   
   
   ### ======================== ###
@@ -74,7 +89,21 @@ server <- function(input, output, session){
   output$ui_v <- renderUI({
     if (input$showpanel_v) {
       sidebarLayout(
-        div(id = "Sidebar", sidebarPanel(width = width_sidebar,
+        div(id = "Sidebar", sidebarPanel(width = width_sidebar, style = "position:fixed;width:22%;",
+                                         # Input of geluid: either browse for file, or list of given files
+                                         h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q3 {vertical-align: top;}"),
+                                            bsButton("q3", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                                         selectInput("vocoder_geluidInput1", label = "",
+                                                     choices = list("Mannenstem" = 1, "Vrouwenstem" = 2, "Muziek" = 3, "Sinus 1kHz" = 4), selected = 1),
+                                         bsPopover(id="q3", title = "<b>Geluid kiezen</b>",
+                                                   content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
+                                                                    "<p> <b>Mannenstem:</b> Mannenstem die Hello zegt. </p>",
+                                                                    "<p> <b>Vrouwenstem:</b> Vrouwenstem die Hello zegt. </p>",
+                                                                    "<p> <b>Muziek:</b> Kort muziekje. </p>",
+                                                                    "<p> <b>Sinus:</b> Sinus test toon van 1kHz. </p>"),
+                                                   placement = "right",
+                                                   trigger = "hover",
+                                                   options = list(container = "body")),
                                          # Number of channels
                                          sliderInput("channelsVocoder", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#q1 {vertical-align: top;}"),
                                                                            bsButton("q1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -87,42 +116,36 @@ server <- function(input, output, session){
                                                    trigger = "hover",
                                                    options = list(container = "body")
                                          ),
-                                         # Input of geluid: either browse for file, or list of given files
-                                         h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q3 {vertical-align: top;}"),
-                                            bsButton("q3", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-                                         selectInput("vocoder_geluidInput1", label = "",
-                                                     choices = list("Hello" = 1, "Boo" = 2, "Alarm" = 3), selected = 1),
-                                         bsPopover(id="q3", title = "<b>Geluid kiezen</b>",
-                                                   content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
-                                                                    "<p> <b>Hello:</b> Het spraakgeluid van een persoon die Hello zegt. </p>",
-                                                                    "<p> <b>Boo:</b> Ruisgeluid van een groep mensen die Boo roepen (zoals bijvoorbeeld bij een voetbalwedstrijd). </p>",
-                                                                    "<p> <b>Alarm:</b> Het geluid van een alarm om zo een stapgewijs geluid te hebben. </p>"),
+                                         # Zoomen
+                                         h3("Zoomen", style="color:#191970", tags$style(type = "text/css", "#q2 {vertical-align: top;}"),
+                                            bsButton("q2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                                         bsPopover(id="q2", title = "<b>Zoomen</b>",
+                                                   content = paste0("<p><b> Inzoomen </b> in de input en output grafiek kan je doen door het gebied te selecteren met de muis waarop je wilt inzoomen. Vervolgens dubbelklik je erop.</p>",
+                                                                    "<p><b> Uitzoomen </b> doe je dan weer om gewoon gelijk waar op de grafiek te dubbelklikken, zonder eerst een gebied te selecteren.</p>"),
                                                    placement = "right",
                                                    trigger = "hover",
                                                    options = list(container = "body"))
                                          
-                                         
         )),
-        mainPanel(
+        mainPanel( width = width_mainpanel,
+                   
           h2("Vocoder"),
           h5("Een vocoder, of voice encoder, verwerft de spectrale eigenschappen van een inkomend signaal, waarna die eigenschappen worden toegepast op het uitgaande signaal."),
-          h5("Je kan in deze module aan de linkerkant het geluid alsook het aantal kanalen kiezen."),
-          h5("Inzoomen kan je door het gebied waarin je wilt inzoomen te markeren en hierna te dubbelklikken. Uitzoomen doe je dan weer door te dubbelklikken op de grafiek."),
-          h5("Een belangrijke opmerking: een kan een tijdje duren vooraleer alle grafieken geladen zijn."),
           h3("Werking van de vocoder"),
-          h5("De eerste grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken."),
-          h5("De vocoder van een cochleair implantaat werkt in verschillende stappen."),
-          h5("Allereerst wordt het inkomende signaal opgedeeld op een aantal bandpasfilters, zoals je in de eerste kolom (Bandpass) kan zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden. De grafieken voor hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden, zie je in de kolom BP-Filtered signal.
+          bsCollapse(id = "vocoder_mainpanel", 
+                     bsCollapsePanel("Meer informatie", "De eerste grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken.",
+                                     "De vocoder van een cochleair implantaat werkt in verschillende stappen.",
+                                     "Allereerst wordt het inkomende signaal opgedeeld op een aantal bandpasfilters, zoals je in de eerste kolom (Bandpass) kan zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden. De grafieken voor hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden, zie je in de kolom BP-Filtered signal.
              Per bandpassfilter kan je een koppeling maken naar een elektrode van het cochleair implantaat. Indien je dus 4 bandpassfilters gebruikt, kan je die koppelen met 4 elektrodes, die je kanalen voorstellen. Daarom is het aantal kanalen dat je ingesteld hebt gelijk aan het aantal bandpassfilters.
-             Vervolgens wordt de omhullende van het gefilterd signaal berekend. Mensen kunnen spraak waarnemen met behulp van de omhullende, zonder dat de fijnstructuur aanwezig is. Van zodra de omhullende dus berekend is en door voldoende kanalen kan worden doorgegeven, kunnen CI patienten het inkomende (spraak)signaal begrijpen. 
-             Een volgende stap is om de ontbrekende fijnstructuur toe te voegen. Dit gebeurt met behulp van de carrier, of ook draaggolf. In de laatste kolom zie je de modulatie van de carrier samen met het gefilterde signaal."),
-          h5("De laatste stap is om de signalen van alle kanalen weer samen te brengen tot 1 uitgaand signaal. Het uitgaande signaal kan je in de laatste grafiek zien. Je kan dit signaal ook beluisteren door op de knop te klikken."),
-          
+                                              Vervolgens wordt de omhullende van het gefilterd signaal berekend. Mensen kunnen spraak waarnemen met behulp van de omhullende, zonder dat de fijnstructuur aanwezig is. Van zodra de omhullende dus berekend is en door voldoende kanalen kan worden doorgegeven, kunnen CI patienten het inkomende (spraak)signaal begrijpen. 
+                                              Een volgende stap is om de ontbrekende fijnstructuur toe te voegen. Dit gebeurt met behulp van de carrier, of ook draaggolf. In de laatste kolom zie je de modulatie van de carrier samen met het gefilterde signaal.",
+                                     "De laatste stap is om de signalen van alle kanalen weer samen te brengen tot 1 uitgaand signaal. Het uitgaande signaal kan je in de laatste grafiek zien. Je kan dit signaal ook beluisteren door op de knop te klikken.", style = "default")),
           withSpinner(plotOutput("Input_Vocoder", dblclick = "plot1_v_dblclick",
                                  brush = brushOpts(id = "plot1_v_brush", resetOnNew = TRUE))),
+          br(),
           fluidRow(
             column(6, align="center", offset = 3,
-                   actionButton("playInputVocoder", "Luister naar het inkomende signaal")
+                   uiOutput("myAudio_IV")
             )
           ),
           br(),
@@ -132,9 +155,11 @@ server <- function(input, output, session){
           br(),
           fluidRow(
             column(6, align="center", offset = 3,
-                   actionButton("playOutputVocoder", "Luister naar het uitgaande signaal")
+                   uiOutput("myAudio_OV")
             )
-          )
+          ),
+          br(),
+          br()
           )
         )
       
@@ -142,23 +167,22 @@ server <- function(input, output, session){
       tabPanel("",
                h2("Vocoder"),
                h5("Een vocoder, of voice encoder, verwerft de spectrale eigenschappen van een inkomend signaal, waarna die eigenschappen worden toegepast op het uitgaande signaal."),
-               h5("Je kan in deze module aan de linkerkant het geluid alsook het aantal kanalen kiezen."),
-               h5("Inzoomen kan je door het gebied waarin je wilt inzoomen te markeren en hierna te dubbelklikken. Uitzoomen doe je dan weer door te dubbelklikken op de grafiek."),
-               h5("Een belangrijke opmerking: een kan een tijdje duren vooraleer alle grafieken geladen zijn."),
                h3("Werking van de vocoder"),
-               h5("De eerste grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken."),
-               h5("De vocoder van een cochleair implantaat werkt in verschillende stappen."),
-               h5("Allereerst wordt het inkomende signaal opgedeeld op een aantal bandpasfilters, zoals je in de eerste kolom (Bandpass) kan zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden. De grafieken voor hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden, zie je in de kolom BP-Filtered signal.
-                  Per bandpassfilter kan je een koppeling maken naar een elektrode van het cochleair implantaat. Indien je dus 4 bandpassfilters gebruikt, kan je die koppelen met 4 elektrodes, die je kanalen voorstellen. Daarom is het aantal kanalen dat je ingesteld hebt gelijk aan het aantal bandpassfilters.
-                  Vervolgens wordt de omhullende van het gefilterd signaal berekend. Mensen kunnen spraak waarnemen met behulp van de omhullende, zonder dat de fijnstructuur aanwezig is. Van zodra de omhullende dus berekend is en door voldoende kanalen kan worden doorgegeven, kunnen CI patienten het inkomende (spraak)signaal begrijpen. 
-                  Een volgende stap is om de ontbrekende fijnstructuur toe te voegen. Dit gebeurt met behulp van de carrier, of ook draaggolf. In de laatste kolom zie je de modulatie van de carrier samen met het gefilterde signaal."),
-               h5("De laatste stap is om de signalen van alle kanalen weer samen te brengen tot 1 uitgaand signaal. Het uitgaande signaal kan je in de laatste grafiek zien. Je kan dit signaal ook beluisteren door op de knop te klikken."),
+               bsCollapse(id = "vocoder_mainpanel", 
+                          bsCollapsePanel("Meer informatie", "De eerste grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken.",
+                                          "De vocoder van een cochleair implantaat werkt in verschillende stappen.",
+                                          "Allereerst wordt het inkomende signaal opgedeeld op een aantal bandpasfilters, zoals je in de eerste kolom (Bandpass) kan zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden. De grafieken voor hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden, zie je in de kolom BP-Filtered signal.
+             Per bandpassfilter kan je een koppeling maken naar een elektrode van het cochleair implantaat. Indien je dus 4 bandpassfilters gebruikt, kan je die koppelen met 4 elektrodes, die je kanalen voorstellen. Daarom is het aantal kanalen dat je ingesteld hebt gelijk aan het aantal bandpassfilters.
+                                              Vervolgens wordt de omhullende van het gefilterd signaal berekend. Mensen kunnen spraak waarnemen met behulp van de omhullende, zonder dat de fijnstructuur aanwezig is. Van zodra de omhullende dus berekend is en door voldoende kanalen kan worden doorgegeven, kunnen CI patienten het inkomende (spraak)signaal begrijpen. 
+                                              Een volgende stap is om de ontbrekende fijnstructuur toe te voegen. Dit gebeurt met behulp van de carrier, of ook draaggolf. In de laatste kolom zie je de modulatie van de carrier samen met het gefilterde signaal.",
+                                          "De laatste stap is om de signalen van alle kanalen weer samen te brengen tot 1 uitgaand signaal. Het uitgaande signaal kan je in de laatste grafiek zien. Je kan dit signaal ook beluisteren door op de knop te klikken.", style = "default")),
                
                withSpinner(plotOutput("Input_Vocoder", dblclick = "plot1_v_dblclick",
                                       brush = brushOpts(id = "plot1_v_brush", resetOnNew = TRUE))),
+               br(),
                fluidRow(
                  column(6, align="center", offset = 3,
-                        actionButton("playInputVocoder", "Luister naar het inkomende signaal")
+                        uiOutput("myAudio_IV")
                  )
                ),
                br(),
@@ -168,9 +192,11 @@ server <- function(input, output, session){
                br(),
                fluidRow(
                  column(6, align="center", offset = 3,
-                        actionButton("playOutputVocoder", "Luister naar het uitgaande signaal")
+                        uiOutput("myAudio_OV")
                  )
-               )
+               ),
+               br(),
+               br()
                )
     }
   })
@@ -182,22 +208,27 @@ server <- function(input, output, session){
   
   ## Make audio variable, depending on input
   audio_vocoder <- reactive({
-    if(input$vocoder_geluidInput1 == 1){ load.wave("www/hello.wav") }
-    else if(input$vocoder_geluidInput1 == 2) { load.wave("www/boo.wav") }
-    else if(input$vocoder_geluidInput1 == 3) { load.wave("www/alarm.wav") }
+    if(input$vocoder_geluidInput1 == 1){ load.wave("www/hello.wav")} # mannenstenm
+    else if(input$vocoder_geluidInput1 == 2) { load.wave("www/female_word.wav")} # vrouwenstem
+    else if(input$vocoder_geluidInput1 == 3) { load.wave("www/short_music.wav") } # kort muziekje
+    else if(input$vocoder_geluidInput1 == 4) { load.wave("www/500ms_sinus_1khz.wav") } # kort muziekje
+  })
+
+  
+  conditionalAudio <- reactive({
+    if(input$vocoder_geluidInput1 == 1){ tags$audio(src = "hello.wav", type = "audio/wav", controls = NA) } # mannenstenm
+    else if(input$vocoder_geluidInput1 == 2) { tags$audio(src = "female_word.wav", type = "audio/wav", controls = NA) } # vrouwenstem
+    else if(input$vocoder_geluidInput1 == 3) { tags$audio(src = "short_music.wav", type = "audio/wav", controls = NA) } # kort muziekje
+    else if(input$vocoder_geluidInput1 == 4) { tags$audio(src = "500ms_sinus_1khz.wav", type = "audio/wav", controls = NA) } # kort muziekje
   })
   
-  ## Play input signal if the button has been clicked
-  observeEvent(input$playInputVocoder, {
-    audio::play(audio_vocoder())
-  })
-  
+  output$myAudio_IV <- renderUI(conditionalAudio())
   
   ranges_v_input <- reactiveValues(x = NULL, y = NULL)
   
   ## Plot input signal
   Vocoder_inputSignal <- reactive({
-    ## hello
+    ## male
     if(input$vocoder_geluidInput1 == 1){
       sound <- tuneR::readWave("www/hello.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
@@ -205,17 +236,25 @@ server <- function(input, output, session){
       timeArray <- timeArray * 1000 ##scale to milliseconds
       plot(timeArray, s1, type="l", col="black", xlim = ranges_v_input$x, ylim = ranges_v_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
     }
-    ## boo
+    ## female
     else if(input$vocoder_geluidInput1 == 2){
-      sound <- tuneR::readWave("www/boo.wav")
+      sound <- tuneR::readWave("www/female_word.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
       plot(timeArray, s1, type="l", col="black", xlim = ranges_v_input$x, ylim = ranges_v_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
     }
-    ## alarm
+    ## music
     else if(input$vocoder_geluidInput1 == 3){
-      sound <- tuneR::readWave("www/alarm.wav")
+      sound <- tuneR::readWave("www/short_music.wav")
+      s1 <- sound@left / 2^(sound@bit - 1)
+      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
+      timeArray <- timeArray * 1000 ##scale to milliseconds
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_v_input$x, ylim = ranges_v_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
+    }
+    ## sinus
+    else if(input$vocoder_geluidInput1 == 4){
+      sound <- tuneR::readWave("www/500ms_sinus_1khz.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
@@ -245,10 +284,33 @@ server <- function(input, output, session){
     vocoder(audio_vocoder()[1:length(audio_vocoder())], 22050, nrChannels_V(), "noise") 
   })
   
-  ## Play resulting sound if the button has been clicked
-  observeEvent(input$playOutputVocoder, {
-    audio::play(as.audioSample(unlist(resultVocoder()[[1]])))
+
+  ### Play output signal
+  conditional_audio_vocoder_O <- reactive({
+    if(input$vocoder_geluidInput1 == 1 && input$channelsVocoder == 1){ tags$audio(src = "hello_1channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput1 == 1 && input$channelsVocoder == 2){ tags$audio(src = "hello_2channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput1 == 1 && input$channelsVocoder == 3){ tags$audio(src = "hello_3channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput1 == 1 && input$channelsVocoder == 4){ tags$audio(src = "hello_4channel.wav", type = "audio/wav", controls = NA) }
+    # VROUWENSTEM
+    else if(input$vocoder_geluidInput1 == 2 && input$channelsVocoder == 1){ tags$audio(src = "female_1channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput1 == 2 && input$channelsVocoder == 2){ tags$audio(src = "female_2channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput1 == 2 && input$channelsVocoder == 3){ tags$audio(src = "female_3channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput1 == 2 && input$channelsVocoder == 4){ tags$audio(src = "female_4channel.wav", type = "audio/wav", controls = NA) }
+    # KORT MUZIEKJE
+    else if(input$vocoder_geluidInput1 == 3 && input$channelsVocoder == 1){ tags$audio(src = "music_1channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput1 == 3 && input$channelsVocoder == 2){ tags$audio(src = "music_2channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput1 == 3 && input$channelsVocoder == 3){ tags$audio(src = "music_3channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput1 == 3 && input$channelsVocoder == 4){ tags$audio(src = "music_4channel.wav", type = "audio/wav", controls = NA) }
+    # SINUS
+    else if(input$vocoder_geluidInput1 == 4 && input$channelsVocoder == 1){ tags$audio(src = "sinus_1channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput1 == 4 && input$channelsVocoder == 2){ tags$audio(src = "sinus_2channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput1 == 4 && input$channelsVocoder == 3){ tags$audio(src = "sinus_3channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput1 == 4 && input$channelsVocoder == 4){ tags$audio(src = "sinus_4channel.wav", type = "audio/wav", controls = NA) }
   })
+  
+  output$myAudio_OV <- renderUI(conditional_audio_vocoder_O())
+  
+  
   
   ranges_v_output <- reactiveValues(x = NULL, y = NULL)
   
@@ -326,7 +388,21 @@ server <- function(input, output, session){
   output$ui_ha <- renderUI({
     if (input$showpanel_ha) {
       sidebarLayout(
-        sidebarPanel(width = width_sidebar,
+        sidebarPanel(width = width_sidebar, style = "position:fixed;width:22%;",
+                     # Input of geluid: either browse for file, or list of given files
+                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q7 {vertical-align: top;}"),
+                        bsButton("q7", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     selectInput("hoorapparaat_geluidInput1", label = "",
+                                 choices = list("Mannenstem" = 1, "Vrouwenstem" = 2, "Muziek" = 3, "Sinus 1kHz" = 4), selected = 1),
+                     bsPopover(id="q7", title = "Geluid kiezen",
+                               content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
+                                                "<p> <b>Mannenstem:</b> Mannenstem die Hello zegt. </p>",
+                                                "<p> <b>Vrouwenstem:</b> Vrouwenstem die Hello zegt. </p>",
+                                                "<p> <b>Muziek:</b> Kort muziekje. </p>",
+                                                "<p> <b>Sinus:</b> Sinus test toon van 1kHz. </p>"),
+                               placement = "right",
+                               trigger = "hover",
+                               options = list(container = "body")),
                      ## Dynamische karakteristieken
                      h3("Dynamische karakteristieken", style="color:#191970", tags$style(type = "text/css", "#q5 {vertical-align: top;}"),
                         bsButton("q5", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -358,102 +434,117 @@ server <- function(input, output, session){
                                trigger = "hover",
                                options = list(container = "body")),
                      # Kniepunten
+                     h5("Eerste kniepunt"),
                      fluidRow(
                        column(6,  numericInput("kniepunt1x",
-                                               label = h4("Kniepunt 1: x"),
+                                               label = h4("x (dB SPL)"),
                                                value = 30)),
                        column(6, numericInput("kniepunt1y",
-                                              label = h4("y"),
+                                              label = h4("y (dB SPL)"),
                                               value = 30))
                      ),
+                     h5("Tweede kniepunt"),
                      fluidRow(
                        column(6,  numericInput("kniepunt2x",
-                                               label = h4("Kniepunt 2: x"),
+                                               label = h4("x (dB SPL)"),
                                                value = 80)),
                        column(6, numericInput("kniepunt2y",
-                                              label = h4("y"),
+                                              label = h4("y (dB SPL)"),
                                               value = 69))
                      ),
-                     # Input of geluid: either browse for file, or list of given files
-                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q7 {vertical-align: top;}"),
-                        bsButton("q7", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-                     selectInput("hoorapparaat_geluidInput1", label = "",
-                                 #choices = list("Hello" = 1, "Stilte" = 2, "Boo" = 3, "Alarm" = 4), selected = 1),
-                                 choices = list("Hello" = 1, "Boo" = 2, "Alarm" = 3), selected = 1),
-                     bsPopover(id="q7", title = "Geluid kiezen",
-                               content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
-                                                "<p> <b>Hello:</b> Het spraakgeluid van een persoon die Hello zegt. </p>",
-                                                "<p> <b>Boo:</b> Ruisgeluid van een groep mensen die Boo roepen (zoals bijvoorbeeld bij een voetbalwedstrijd). </p>",
-                                                "<p> <b>Alarm:</b> Het geluid van een alarm om zo een stapgewijs geluid te hebben. </p>"),
+                     # Zoomen
+                     h3("Zoomen", style="color:#191970", tags$style(type = "text/css", "#q2 {vertical-align: top;}"),
+                        bsButton("q2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     bsPopover(id="q2", title = "<b>Zoomen</b>",
+                               content = paste0("<p><b> Inzoomen </b> in de input en output grafiek kan je doen door het gebied te selecteren met de muis waarop je wilt inzoomen. Vervolgens dubbelklik je erop.</p>",
+                                                "<p><b> Uitzoomen </b> doe je dan weer om gewoon gelijk waar op de grafiek te dubbelklikken, zonder eerst een gebied te selecteren.</p>"),
                                placement = "right",
                                trigger = "hover",
                                options = list(container = "body"))
         ),
-        mainPanel(
+        mainPanel( width = width_mainpanel,
           h2("Hoorapparaat"),
           h5("Een hoorapparaat is een niet-invasieve revalidatie voor mensen met gehoorproblemen."),
-          h5("Je kan in deze module aan de linkerkant het geluid alsook enkele parameters instellen."),
-          h5("Inzoomen kan je door het gebied waarin je wilt inzoomen te markeren en hierna te dubbelklikken. Uitzoomen doe je dan weer door te dubbelklikken op de grafiek."),
-          h5("Een belangrijke opmerking: een kan een tijdje duren vooraleer alle grafieken geladen zijn."),
           h3("Compressiesysteem van een hoorapparaat"),
-          h5("De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte, stillere geluiden meer versterkt moeten worden dan harde, luide geluiden. Een van de grootste uitdagingen is daarom ook om zachte geluiden net hoorbaar te maken, terwijl harde geluiden niet onaangenaam luid worden."),
-          h5("Verschillende parameters zijn van belang bij het compressiesysteem van een hoorapparaat, en ze onderscheiden zich in dynamische en statische karakteristieken."),
-          h5("Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden. De twee parameters die hier van belang zijn, zijn de attack time en de release time. Deze twee parameters kan je aan de linkerzijde van de applicatie instellen, en bekijken hoe de output, en dus compressie, verandert."),
-          h5("Statische eigenschappen zijn dan weer belangrijk om de compressieregeling in te stellen. Parameters die hier van belang zijn, zijn onder andere de kniepunten. Ook deze parameters kan je links aanpassen en zo zien hoe het uitgaande signaal verandert. Andere belangrijke parameters, die je links niet kan instellen, zijn de compressie ratio en de insertion gain. De compressie ratio is de verhouding tussen de verandering van het input-geluidsnivevau en de verandering van het output-geluidsniveau. Op het IO-diagram komt de compressie ratio overeen met de helling van de lijn tussen kniepunt 1 en kniepunt 2. Een laatste belangrijke parameter is de insertion gain. Deze geeft het verschil weer tussen niet-versterkte en het versterkte signaal, m.a.w. input - output."),
-          fluidRow(
-            splitLayout(cellWidths = c("50%", "50%"),
-                        withSpinner(plotOutput("Input_Hoorapparaat", dblclick = "plot1_ha_dblclick",
-                                               brush = brushOpts(id = "plot1_ha_brush", resetOnNew = TRUE))),
-                        withSpinner(plotOutput("Output_Hoorapparaat", dblclick = "plot2_ha_dblclick",
-                                               brush = brushOpts(id = "plot2_ha_brush", resetOnNew = TRUE))))
-          ),
+          bsCollapse(id = "hoorapparaat_mainpanel", 
+                     bsCollapsePanel("Meer informatie", "De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte, stillere geluiden meer versterkt moeten worden dan harde, luide geluiden. Een van de grootste uitdagingen is daarom ook om zachte geluiden net hoorbaar te maken, terwijl harde geluiden niet onaangenaam luid worden.",
+                                     "Verschillende parameters zijn van belang bij het compressiesysteem van een hoorapparaat, en ze onderscheiden zich in dynamische en statische karakteristieken.",
+                                     "Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden. De twee parameters die hier van belang zijn, zijn de attack time en de release time. Deze twee parameters kan je aan de linkerzijde van de applicatie instellen, en bekijken hoe de output, en dus compressie, verandert.",
+                                     "Statische eigenschappen zijn dan weer belangrijk om de compressieregeling in te stellen. Parameters die hier van belang zijn, zijn onder andere de kniepunten. Ook deze parameters kan je links aanpassen en zo zien hoe het uitgaande signaal verandert. Andere belangrijke parameters, die je links niet kan instellen, zijn de compressie ratio en de insertion gain. De compressie ratio is de verhouding tussen de verandering van het input-geluidsnivevau en de verandering van het output-geluidsniveau. Op het IO-diagram komt de compressie ratio overeen met de helling van de lijn tussen kniepunt 1 en kniepunt 2. Een laatste belangrijke parameter is de insertion gain. Deze geeft het verschil weer tussen niet-versterkte en het versterkte signaal, m.a.w. input - output.", style = "default")),
+          withSpinner(plotOutput("Input_Hoorapparaat", dblclick = "plot1_ha_dblclick",
+                                 brush = brushOpts(id = "plot1_ha_brush", resetOnNew = TRUE))),
+          br(),
           fluidRow(
             column(6, align="center", offset = 3,
-                   actionButton("playInputHoorapparaat", "Luister naar het inkomende signaal"),
-                   actionButton("playOutputHoorapparaat", "Luister naar het uitgaande signaal")
+                   uiOutput("myAudio_IH")
             )
           ),
           br(),
-          withSpinner(plotOutput("IO_diagram", height = 500))
+          withSpinner(plotOutput("IO_diagram", height = 500)),
+          br(),
+          withSpinner(plotOutput("Output_Hoorapparaat", dblclick = "plot2_ha_dblclick",
+                                 brush = brushOpts(id = "plot2_ha_brush", resetOnNew = TRUE))),
+          br(),
+          fluidRow(
+            column(6, align="center", offset = 3,
+                   uiOutput("myAudio_OH")
+            )
+          ),
+          br()
         )
       )
     } else {
       tabPanel("",
                h2("Hoorapparaat"),
                h5("Een hoorapparaat is een niet-invasieve revalidatie voor mensen met gehoorproblemen."),
-               h5("Je kan in deze module aan de linkerkant het geluid alsook enkele parameters instellen."),
-               h5("Inzoomen kan je door het gebied waarin je wilt inzoomen te markeren en hierna te dubbelklikken. Uitzoomen doe je dan weer door te dubbelklikken op de grafiek."),
-               h5("Een belangrijke opmerking: een kan een tijdje duren vooraleer alle grafieken geladen zijn."),
                h3("Compressiesysteem van een hoorapparaat"),
-               h5("De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte, stillere geluiden meer versterkt moeten worden dan harde, luide geluiden. Een van de grootste uitdagingen is daarom ook om zachte geluiden net hoorbaar te maken, terwijl harde geluiden niet onaangenaam luid worden."),
-               h5("Verschillende parameters zijn van belang bij het compressiesysteem van een hoorapparaat, en ze onderscheiden zich in dynamische en statische karakteristieken."),
-               h5("Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden. De twee parameters die hier van belang zijn, zijn de attack time en de release time. Deze twee parameters kan je aan de linkerzijde van de applicatie instellen, en bekijken hoe de output, en dus compressie, verandert."),
-               h5("Statische eigenschappen zijn dan weer belangrijk om de compressieregeling in te stellen. Parameters die hier van belang zijn, zijn onder andere de kniepunten. Ook deze parameters kan je links aanpassen en zo zien hoe het uitgaande signaal verandert. Andere belangrijke parameters, die je links niet kan instellen, zijn de compressie ratio en de insertion gain. De compressie ratio is de verhouding tussen de verandering van het input-geluidsnivevau en de verandering van het output-geluidsniveau. Op het IO-diagram komt de compressie ratio overeen met de helling van de lijn tussen kniepunt 1 en kniepunt 2. Een laatste belangrijke parameter is de insertion gain. Deze geeft het verschil weer tussen niet-versterkte en het versterkte signaal, m.a.w. input - output."),
-               fluidRow(
-                 splitLayout(cellWidths = c("50%", "50%"),
-                             withSpinner(plotOutput("Input_Hoorapparaat", dblclick = "plot1_ha_dblclick",
-                                                    brush = brushOpts(id = "plot1_ha_brush", resetOnNew = TRUE))),
-                             withSpinner(plotOutput("Output_Hoorapparaat", dblclick = "plot2_ha_dblclick",
-                                                    brush = brushOpts(id = "plot2_ha_brush", resetOnNew = TRUE))))
-               ),
+               bsCollapse(id = "hoorapparaat_mainpanel", 
+                          bsCollapsePanel("Meer informatie", "De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte, stillere geluiden meer versterkt moeten worden dan harde, luide geluiden. Een van de grootste uitdagingen is daarom ook om zachte geluiden net hoorbaar te maken, terwijl harde geluiden niet onaangenaam luid worden.",
+                                          "Verschillende parameters zijn van belang bij het compressiesysteem van een hoorapparaat, en ze onderscheiden zich in dynamische en statische karakteristieken.",
+                                          "Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden. De twee parameters die hier van belang zijn, zijn de attack time en de release time. Deze twee parameters kan je aan de linkerzijde van de applicatie instellen, en bekijken hoe de output, en dus compressie, verandert.",
+                                          "Statische eigenschappen zijn dan weer belangrijk om de compressieregeling in te stellen. Parameters die hier van belang zijn, zijn onder andere de kniepunten. Ook deze parameters kan je links aanpassen en zo zien hoe het uitgaande signaal verandert. Andere belangrijke parameters, die je links niet kan instellen, zijn de compressie ratio en de insertion gain. De compressie ratio is de verhouding tussen de verandering van het input-geluidsnivevau en de verandering van het output-geluidsniveau. Op het IO-diagram komt de compressie ratio overeen met de helling van de lijn tussen kniepunt 1 en kniepunt 2. Een laatste belangrijke parameter is de insertion gain. Deze geeft het verschil weer tussen niet-versterkte en het versterkte signaal, m.a.w. input - output.", style = "default")),
+               withSpinner(plotOutput("Input_Hoorapparaat", dblclick = "plot1_ha_dblclick",
+                                                              brush = brushOpts(id = "plot1_ha_brush", resetOnNew = TRUE))),
+               br(),
                fluidRow(
                  column(6, align="center", offset = 3,
-                        actionButton("playInputHoorapparaat", "Luister naar het inkomende signaal"),
-                        actionButton("playOutputHoorapparaat", "Luister naar het uitgaande signaal")
+                        uiOutput("myAudio_IH")
                  )
                ),
                br(),
-               withSpinner(plotOutput("IO_diagram", height = 500))
+               withSpinner(plotOutput("IO_diagram", height = 500)),
+               br(),
+               withSpinner(plotOutput("Output_Hoorapparaat", dblclick = "plot2_ha_dblclick",
+                                                                brush = brushOpts(id = "plot2_ha_brush", resetOnNew = TRUE))),
+               br(),
+               fluidRow(
+                 column(6, align="center", offset = 3,
+                        uiOutput("myAudio_OH")
+                 )
+               ),
+               br()
       )
     }
   })
   
   ## Make audio variable, depending on input
   audio_HA <- reactive({
-    if(input$hoorapparaat_geluidInput1 == 1){ load.wave("www/hello.wav") }
-    else if(input$hoorapparaat_geluidInput1 == 2) { load.wave("www/boo.wav") }
-    else if(input$hoorapparaat_geluidInput1 == 3) { load.wave("www/alarm.wav") }
+    if(input$hoorapparaat_geluidInput1 == 1){ load.wave("www/hello.wav") } # mannenstenm
+    else if(input$hoorapparaat_geluidInput1 == 2) { load.wave("www/female_word.wav")} # vrouwenstem
+    else if(input$hoorapparaat_geluidInput1 == 3) { load.wave("www/short_music.wav") } # kort muziekje
+    else if(input$hoorapparaat_geluidInput1 == 4) { load.wave("www/500ms_sinus_1khz.wav")} # kort muziekje
   })
+  
+  ## Play input sound
+  conditionalAudio_IH <- reactive({
+    if(input$hoorapparaat_geluidInput1 == 1){ tags$audio(src = "hello.wav", type = "audio/wav", controls = NA) } # mannenstenm
+    else if(input$hoorapparaat_geluidInput1 == 2) { tags$audio(src = "female_word.wav", type = "audio/wav", controls = NA) } # vrouwenstem
+    else if(input$hoorapparaat_geluidInput1 == 3) { tags$audio(src = "short_music.wav", type = "audio/wav", controls = NA) } # kort muziekje
+    else if(input$hoorapparaat_geluidInput1 == 4) { tags$audio(src = "500ms_sinus_1khz.wav", type = "audio/wav", controls = NA) } # kort muziekje
+  })
+  
+  output$myAudio_IH <- renderUI(conditionalAudio_IH())
+  
   
   ## Play input signal if the button has been clicked
   observeEvent(input$playInputHoorapparaat, {
@@ -520,22 +611,71 @@ server <- function(input, output, session){
   })
   
   ## Play resulting sound if the button has been clicked
-  observeEvent(input$playOutputHoorapparaat, {
-    audio::play(as.audioSample(unlist(resultHearingAid())))
+  # observeEvent(input$playOutputHoorapparaat, {
+  #   audio::play(as.audioSample(unlist(resultHearingAid())))
+  # })
+  
+  ### Play output signal
+  conditional_audio_hoorapparaat_O <- reactive({
+    # MANNENSTEM
+    if(input$hoorapparaat_geluidInput1 == 1){ tags$audio(src = "male_hoorapparaat.wav", type = "audio/wav", controls = NA) }
+    # VROUWENSTEM
+    else if(input$hoorapparaat_geluidInput1 == 2){ tags$audio(src = "female_hoorapparaat.wav", type = "audio/wav", controls = NA) }
+    # KORT MUZIEKJE
+    else if(input$hoorapparaat_geluidInput1 == 3){ tags$audio(src = "music_hoorapparaat.wav", type = "audio/wav", controls = NA) }
+    # SINUS
+    else if(input$hoorapparaat_geluidInput1 == 4){ tags$audio(src = "sinus_hoorapparaat.wav", type = "audio/wav", controls = NA) }
   })
   
   
+  output$myAudio_OH <- renderUI(conditional_audio_hoorapparaat_O())
+  
+  
   ## Plot output signal
-  sound_ha <- reactive({as.audioSample(resultHearingAid())})
-  s2 <- reactive({sound_ha() / 2^(8 - 1)})
-  ha_out <- reactive({(0:(length(sound_ha())-1)) / sound_ha()$rate})
-  ha_out_ms <- reactive({ha_out() * 1000}) ##scale to milliseconds
-  #df_ha <- reactive({data.frame(x = ha_out_ms(), y = s2())})
-  
-  ranges_ha_output <- reactiveValues(x = NULL, y = NULL)
-  
+  # sound_ha <- reactive({as.audioSample(resultHearingAid())})
+  # s2 <- reactive({sound_ha() / 2^(8 - 1)})
+  # ha_out <- reactive({(0:(length(sound_ha())-1)) / sound_ha()$rate})
+  # ha_out_ms <- reactive({ha_out() * 1000}) ##scale to milliseconds
+  # #df_ha <- reactive({data.frame(x = ha_out_ms(), y = s2())})
+  # 
+   ranges_ha_output <- reactiveValues(x = NULL, y = NULL)
+  # 
+  # Hoorapparaat_outputSignal <- reactive({
+  #   plot(ha_out_ms(), s2(), type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
+  # })
   Hoorapparaat_outputSignal <- reactive({
-    plot(ha_out_ms(), s2(), type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
+    ## male
+    if(input$hoorapparaat_geluidInput1 == 1){
+      sound <- tuneR::readWave("www/male_hoorapparaat.wav")
+      s1 <- sound@left / 2^(sound@bit - 1)
+      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
+      timeArray <- timeArray * 1000 ##scale to milliseconds
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
+    }
+    ## female
+    else if(input$hoorapparaat_geluidInput1 == 2){
+      sound <- tuneR::readWave("www/female_hoorapparaat.wav")
+      s1 <- sound@left / 2^(sound@bit - 1)
+      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
+      timeArray <- timeArray * 1000 ##scale to milliseconds
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
+    }
+    ## short music
+    else if(input$hoorapparaat_geluidInput1 == 3){
+      sound <- tuneR::readWave("www/music_hoorapparaat.wav")
+      s1 <- sound@left / 2^(sound@bit - 1)
+      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
+      timeArray <- timeArray * 1000 ##scale to milliseconds
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")   
+    }
+    ## sinus
+    else if(input$hoorapparaat_geluidInput1 == 4){
+      sound <- tuneR::readWave("www/sinus_hoorapparaat.wav")
+      s1 <- sound@left / 2^(sound@bit - 1)
+      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
+      timeArray <- timeArray * 1000 ##scale to milliseconds
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")    
+    }
   })
   
   output$Output_Hoorapparaat <- renderPlot({Hoorapparaat_outputSignal()})
