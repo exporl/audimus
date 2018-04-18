@@ -16,29 +16,23 @@ library(gtable)
 
 
 ui <- navbarPage("Audimus", id = "inTabSet",
-                 
+
                  ### ======================== ###
                  ###    Information           ###
                  ### ======================== ###
                  tabPanel("Informatie",
-                          h2("Welkom bij de applicatie!"),
-                          br(),
                           h4("In deze applicatie kan je de werking bestuderen van 2 gehoorondersteunende apparaturen, namelijk het cochleair
                              implantaat en het hoorapparaat. Deze applicatie dient als hulpmiddel bij de leerstof van het vak", a("Audiologie, deel
                                                                                                                                   2 (E09G8A)", href="https://onderwijsaanbod.kuleuven.be/syllabi/n/E09G8AN.htm"), "."),
-                          h4("Een cochleair implantaat stimuleert de gehoorzenuw met behulp van elektrische pulsen. Het wordt voornamelijk
-                             gebruikt bij personen waarbij het klassieke hoorapparaat niet meer helpt, aangezien de haarcellen van het
-                             binnenoor beschadigd zijn."),
-                          h4("Een hoorapparaat dient dan weer voor mensen die een licht tot matig gehoorverlies hebben."),
                           h4("Ontdek de modules door op de figuren te klikken!"),
                           br(),
                           fluidRow( align = "center",
                                     actionButton('ci_button', img(src = "CI.jpg"), width = '500px'),
                                     actionButton('hoorapparaat_button', img(src = "hoorapparaat.jpg"), width = '500px')
                           )
-                       
+
            ),
-           
+
            ### ======================== ###
            ###    Vocoder module        ###
            ### ======================== ###
@@ -49,7 +43,7 @@ ui <- navbarPage("Audimus", id = "inTabSet",
                       uiOutput('ui_v')
                     )
            ),
-           
+
            ### ======================== ###
            ###    Hoorapparaat module   ###
            ### ======================== ###
@@ -61,28 +55,28 @@ ui <- navbarPage("Audimus", id = "inTabSet",
                     )
            )
 )
-  
-  
+
+
 server <- function(input, output, session){
-  
+
   # Spring van Info naar CI
   observeEvent(input$ci_button, {
     updateTabsetPanel(session, "inTabSet",
                       selected = "vocoder_db")
-  }) 
-  
+  })
+
   # Spring van Info naar hoorapparaat
   observeEvent(input$hoorapparaat_button, {
     updateTabsetPanel(session, "inTabSet",
                       selected = "hoorapparaat_db")
-  }) 
-  
-  
+  })
+
+
   # out of 12
   width_sidebar <- 3
   width_mainpanel <- 9
-  
-  
+
+
   ### ======================== ###
   ###    Vocoder module        ###
   ### ======================== ###
@@ -110,8 +104,7 @@ server <- function(input, output, session){
                                                      min = 1, max = 4, step = 1, value = 1),
                                          bsPopover(id="q1", title = "<b>Aantal kanalen</b>",
                                                    content = paste0("<p>Kies hier het aantal kanalen.</p>",
-                                                                    "<p>Een kanaal komt overeen met een elektrode die op de cochlea zal zitten.</p>",
-                                                                    "<p> Door meerdere kanalen te hebben, zullen er meerdere bandpassfilters gebruikt worden en zal het inkomende geluid dus beter gereconstrueerd kunnen worden.</p>"),
+                                                                    "<p>Het aantal kanalen bepaalt het aantal filter banden dat gebruikt wordt, en dus de spectrale resolutie van de analyse.</p>"),
                                                    placement = "right",
                                                    trigger = "hover",
                                                    options = list(container = "body")
@@ -125,20 +118,20 @@ server <- function(input, output, session){
                                                    placement = "right",
                                                    trigger = "hover",
                                                    options = list(container = "body"))
-                                         
+
         )),
         mainPanel( width = width_mainpanel,
-                   
+
           h2("Vocoder"),
-          h5("Een vocoder, of voice encoder, verwerft de spectrale eigenschappen van een inkomend signaal, waarna die eigenschappen worden toegepast op het uitgaande signaal."),
+          h5("Een vocoder kan worden gebruikt als simulatie van de signaalverwerking in een cochlear implantaat"),
           h3("Werking van de vocoder"),
-          bsCollapse(id = "vocoder_mainpanel", 
+          bsCollapse(id = "vocoder_mainpanel",
                      bsCollapsePanel("Meer informatie", "De eerste grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken.",
                                      "De vocoder van een cochleair implantaat werkt in verschillende stappen.",
-                                     "Allereerst wordt het inkomende signaal opgedeeld op een aantal bandpasfilters, zoals je in de eerste kolom (Bandpass) kan zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden. De grafieken voor hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden, zie je in de kolom BP-Filtered signal.
-             Per bandpassfilter kan je een koppeling maken naar een elektrode van het cochleair implantaat. Indien je dus 4 bandpassfilters gebruikt, kan je die koppelen met 4 elektrodes, die je kanalen voorstellen. Daarom is het aantal kanalen dat je ingesteld hebt gelijk aan het aantal bandpassfilters.
-                                              Vervolgens wordt de omhullende van het gefilterd signaal berekend. Mensen kunnen spraak waarnemen met behulp van de omhullende, zonder dat de fijnstructuur aanwezig is. Van zodra de omhullende dus berekend is en door voldoende kanalen kan worden doorgegeven, kunnen CI patienten het inkomende (spraak)signaal begrijpen. 
-                                              Een volgende stap is om de ontbrekende fijnstructuur toe te voegen. Dit gebeurt met behulp van de carrier, of ook draaggolf. In de laatste kolom zie je de modulatie van de carrier samen met het gefilterde signaal.",
+                                     "Allereerst wordt het inkomende signaal opgedeeld in een aantal frequentiebanden, zoals je in de eerste kolom (Bandpass) kan zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden. De grafieken voor hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden, zie je in de kolom BP-Filtered signal.
+              Het aantal kanalen dat je ingesteld hebt is gelijk aan het aantal bandpassfilters. In een cochlear implantaat is er meestal een kanaal voor elke elektrode in de cochlea.
+                                              Vervolgens wordt de omhullende van het gefilterd signaal berekend. Mensen kunnen spraak waarnemen met behulp van de omhullende, zonder dat de fijnstructuur aanwezig is. Zodra de omhullende dus berekend is en door voldoende kanalen kan worden doorgegeven, is het mogelijk voor CI gebruikers om het (spraak)signaal te begrijpen.
+                                              Een volgende stap is om de ontbrekende fijnstructuur toe te voegen. Dit gebeurt met behulp van de carrier, of ook draaggolf. In dit geval hebben we gekozen voor een ruisband als draaggolf. De ruisband wordt gemaakt door een witte ruis te filteren met dezelfde BP filters als in de eerste stap. In de laatste kolom zie je de modulatie van de carrier met de omhullende.",
                                      "De laatste stap is om de signalen van alle kanalen weer samen te brengen tot 1 uitgaand signaal. Het uitgaande signaal kan je in de laatste grafiek zien. Je kan dit signaal ook beluisteren door op de knop te klikken.", style = "default")),
           withSpinner(plotOutput("Input_Vocoder", dblclick = "plot1_v_dblclick",
                                  brush = brushOpts(id = "plot1_v_brush", resetOnNew = TRUE))),
@@ -162,21 +155,21 @@ server <- function(input, output, session){
           br()
           )
         )
-      
+
     } else {
       tabPanel("",
                h2("Vocoder"),
                h5("Een vocoder, of voice encoder, verwerft de spectrale eigenschappen van een inkomend signaal, waarna die eigenschappen worden toegepast op het uitgaande signaal."),
                h3("Werking van de vocoder"),
-               bsCollapse(id = "vocoder_mainpanel", 
+               bsCollapse(id = "vocoder_mainpanel",
                           bsCollapsePanel("Meer informatie", "De eerste grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken.",
                                           "De vocoder van een cochleair implantaat werkt in verschillende stappen.",
                                           "Allereerst wordt het inkomende signaal opgedeeld op een aantal bandpasfilters, zoals je in de eerste kolom (Bandpass) kan zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden. De grafieken voor hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden, zie je in de kolom BP-Filtered signal.
              Per bandpassfilter kan je een koppeling maken naar een elektrode van het cochleair implantaat. Indien je dus 4 bandpassfilters gebruikt, kan je die koppelen met 4 elektrodes, die je kanalen voorstellen. Daarom is het aantal kanalen dat je ingesteld hebt gelijk aan het aantal bandpassfilters.
-                                              Vervolgens wordt de omhullende van het gefilterd signaal berekend. Mensen kunnen spraak waarnemen met behulp van de omhullende, zonder dat de fijnstructuur aanwezig is. Van zodra de omhullende dus berekend is en door voldoende kanalen kan worden doorgegeven, kunnen CI patienten het inkomende (spraak)signaal begrijpen. 
+                                              Vervolgens wordt de omhullende van het gefilterd signaal berekend. Mensen kunnen spraak waarnemen met behulp van de omhullende, zonder dat de fijnstructuur aanwezig is. Van zodra de omhullende dus berekend is en door voldoende kanalen kan worden doorgegeven, kunnen CI patienten het inkomende (spraak)signaal begrijpen.
                                               Een volgende stap is om de ontbrekende fijnstructuur toe te voegen. Dit gebeurt met behulp van de carrier, of ook draaggolf. In de laatste kolom zie je de modulatie van de carrier samen met het gefilterde signaal.",
                                           "De laatste stap is om de signalen van alle kanalen weer samen te brengen tot 1 uitgaand signaal. Het uitgaande signaal kan je in de laatste grafiek zien. Je kan dit signaal ook beluisteren door op de knop te klikken.", style = "default")),
-               
+
                withSpinner(plotOutput("Input_Vocoder", dblclick = "plot1_v_dblclick",
                                       brush = brushOpts(id = "plot1_v_brush", resetOnNew = TRUE))),
                br(),
@@ -200,12 +193,12 @@ server <- function(input, output, session){
                )
     }
   })
-  
+
   ## Get parameter values
   nrChannels_V <- reactive({input$channelsVocoder})
   carrier_V <- reactive({input$carrierInput})
   x_zoom_factor <- reactive({input$vocoder_zoom_tijd})
-  
+
   ## Make audio variable, depending on input
   audio_vocoder <- reactive({
     if(input$vocoder_geluidInput1 == 1){ load.wave("www/hello.wav")} # mannenstenm
@@ -214,18 +207,18 @@ server <- function(input, output, session){
     else if(input$vocoder_geluidInput1 == 4) { load.wave("www/500ms_sinus_1khz.wav") } # kort muziekje
   })
 
-  
+
   conditionalAudio <- reactive({
     if(input$vocoder_geluidInput1 == 1){ tags$audio(src = "hello.wav", type = "audio/wav", controls = NA) } # mannenstenm
     else if(input$vocoder_geluidInput1 == 2) { tags$audio(src = "female_word.wav", type = "audio/wav", controls = NA) } # vrouwenstem
     else if(input$vocoder_geluidInput1 == 3) { tags$audio(src = "short_music.wav", type = "audio/wav", controls = NA) } # kort muziekje
     else if(input$vocoder_geluidInput1 == 4) { tags$audio(src = "500ms_sinus_1khz.wav", type = "audio/wav", controls = NA) } # kort muziekje
   })
-  
+
   output$myAudio_IV <- renderUI(conditionalAudio())
-  
+
   ranges_v_input <- reactiveValues(x = NULL, y = NULL)
-  
+
   ## Plot input signal
   Vocoder_inputSignal <- reactive({
     ## male
@@ -261,9 +254,9 @@ server <- function(input, output, session){
       plot(timeArray, s1, type="l", col="black", xlim = ranges_v_input$x, ylim = ranges_v_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
     }
   })
-  
+
   output$Input_Vocoder <- renderPlot({Vocoder_inputSignal()})
-  
+
   # When a double-click happens, check if there's a brush on the plot.
   # If so, zoom to the brush bounds; if not, reset the zoom.
   observeEvent(input$plot1_v_dblclick, {
@@ -271,19 +264,19 @@ server <- function(input, output, session){
     if (!is.null(brush)) {
       ranges_v_input$x <- c(brush$xmin, brush$xmax)
       ranges_v_input$y <- c(brush$ymin, brush$ymax)
-      
+
     } else {
       ranges_v_input$x <- NULL
       ranges_v_input$y <- NULL
     }
   })
-  
-  
+
+
   ## Call vocoder function with selected wav-file and selected/configured parameters
   resultVocoder <- reactive({
-    vocoder(audio_vocoder()[1:length(audio_vocoder())], 22050, nrChannels_V(), "noise") 
+    vocoder(audio_vocoder()[1:length(audio_vocoder())], 22050, nrChannels_V(), "noise")
   })
-  
+
 
   ### Play output signal
   conditional_audio_vocoder_O <- reactive({
@@ -307,24 +300,24 @@ server <- function(input, output, session){
     else if(input$vocoder_geluidInput1 == 4 && input$channelsVocoder == 3){ tags$audio(src = "sinus_3channel.wav", type = "audio/wav", controls = NA) }
     else if(input$vocoder_geluidInput1 == 4 && input$channelsVocoder == 4){ tags$audio(src = "sinus_4channel.wav", type = "audio/wav", controls = NA) }
   })
-  
+
   output$myAudio_OV <- renderUI(conditional_audio_vocoder_O())
-  
-  
-  
+
+
+
   ranges_v_output <- reactiveValues(x = NULL, y = NULL)
-  
+
   ## Plot output signal
   soundV <- reactive({as.audioSample(resultVocoder()[[1]])})
   s2V <- reactive({soundV() / 2^(8 - 1)})
   ha_outV <- reactive({(0:(length(soundV())-1)) / soundV()$rate})
   ha_outV_ms <- reactive({ha_outV() * 1000}) ##scale to milliseconds
   Vocoder_outputSignal <- reactive({
-    plot(ha_outV_ms(), s2V(), type="l", col="black", xlim = ranges_v_output$x, ylim = ranges_v_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
+    plot(ha_outV_ms(), s2V(), type="l", col="black", xlim = ranges_v_output$x, ylim = ranges_v_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")
   })
-  
+
   output$Output_Vocoder <- renderPlot({Vocoder_outputSignal()})
-  
+
   # When a double-click happens, check if there's a brush on the plot.
   # If so, zoom to the brush bounds; if not, reset the zoom.
   observeEvent(input$plot2_v_dblclick, {
@@ -332,13 +325,13 @@ server <- function(input, output, session){
     if (!is.null(brush)) {
       ranges_v_output$x <- c(brush$xmin, brush$xmax)
       ranges_v_output$y <- c(brush$ymin, brush$ymax)
-      
+
     } else {
       ranges_v_output$x <- NULL
       ranges_v_output$y <- NULL
     }
   })
-  
+
   ## Combined plots
   nrColumns <- 5
   filterPlot <- reactive({resultVocoder()[[2]]})
@@ -369,19 +362,19 @@ server <- function(input, output, session){
                 nrow = 4)
     }
   })
-  
+
   #output$Combined_graphs <- renderPlot({ resultVocoder()[[7]] })
   output$Combined_graphs <- renderPlot({ combined_List() })
-  
-  
-  
-  
+
+
+
+
   ### ***************************************************************
   ### ***************************************************************
   ### ***************************************************************
   ### ***************************************************************
-  
-  
+
+
   ### ======================== ###
   ###    Hoorapparaat module   ###
   ### ======================== ###
@@ -407,10 +400,10 @@ server <- function(input, output, session){
                      h3("Dynamische karakteristieken", style="color:#191970", tags$style(type = "text/css", "#q5 {vertical-align: top;}"),
                         bsButton("q5", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                      bsPopover(id="q5", title = "<b>Dynamische karakteristieken</b>",
-                               content = paste0("<p>Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden.</p>",
+                               content = paste0("<p>De dynamische karakteristieken geven aan hoe het compressiesysteem zich gedraagt bij een verandering in niveau van het inkomend signaal.</p>",
                                                 "<p> Twee parameters zijn hierbij belangrijk: </p>",
-                                                "<p> <b>Attack time:</b> de tijd die het compressiesysteem nodig heeft om zich aan te passen aan een toenemend inkomend signaal. Deze wordt vaak op 5ms ingesteld. </p>",
-                                                "<p> <b>Release time:</b> de tijd die het compressiesysteem nodig heeft om zich aan te passen aan een afnemend inkomend signaal. Deze wordt vaak op 50ms ingesteld. </p>"),
+                                                "<p> <b>Attack time:</b> de tijd die het compressiesysteem nodig heeft om zich aan te passen aan een toenemend inkomend signaal. Deze is typisch klein (ongeveer 5ms). </p>",
+                                                "<p> <b>Release time:</b> de tijd die het compressiesysteem nodig heeft om zich aan te passen aan een afnemend inkomend signaal. Deze is typisch groter (bijvoorbeeld 50ms). </p>"),
                                placement = "right",
                                trigger = "hover",
                                options = list(container = "body")),
@@ -427,9 +420,9 @@ server <- function(input, output, session){
                      h3("Statische karakteristieken", style="color:#191970", tags$style(type = "text/css", "#q6 {vertical-align: top;}"),
                         bsButton("q6", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                      bsPopover(id="q6", title = "<b>Statische karakteristieken</b>",
-                               content = paste0("<p>Statische eigenschappen zijn belangrijk om de compressieregeling in te stellen.</p>",
-                                                "<p>Een belangrijke parameter hiervoor is de <b>compressiedrempel</b> of ook <b>kniepunt</b>. Dit geeft het niveau weer waarbij de compressor begint te werken. </p>",
-                                                "<p>Een andere belangrijke parameter is de <b>compressie ratio</b>. Deze kan je hier niet instellen, aangezien het gelinked is met de kniepunten.</p>"),
+                               content = paste0("<p>De statische karakteristieken geven het verband tussen het niveau van het ingangssignaal en de gewenste versterking.</p>",
+                                                "<p>Een belangrijke parameter hiervoor is de <b>compressiedrempel</b>, het eerste kniepunt. Dit geeft het niveau weer waarbij de compressor begint te werken. </p>",
+                                                "<p>Een andere belangrijke parameter is de <b>compressie verhouding</b>. Deze kan je hier niet rechtstreeks instellen, maar wel via de kniepunten.</p>"),
                                placement = "right",
                                trigger = "hover",
                                options = list(container = "body")),
@@ -466,8 +459,8 @@ server <- function(input, output, session){
           h2("Hoorapparaat"),
           h5("Een hoorapparaat is een niet-invasieve revalidatie voor mensen met gehoorproblemen."),
           h3("Compressiesysteem van een hoorapparaat"),
-          bsCollapse(id = "hoorapparaat_mainpanel", 
-                     bsCollapsePanel("Meer informatie", "De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte, stillere geluiden meer versterkt moeten worden dan harde, luide geluiden. Een van de grootste uitdagingen is daarom ook om zachte geluiden net hoorbaar te maken, terwijl harde geluiden niet onaangenaam luid worden.",
+          bsCollapse(id = "hoorapparaat_mainpanel",
+                     bsCollapsePanel("Meer informatie", "De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte geluiden meer versterkt moeten worden dan harde geluiden. ",
                                      "Verschillende parameters zijn van belang bij het compressiesysteem van een hoorapparaat, en ze onderscheiden zich in dynamische en statische karakteristieken.",
                                      "Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden. De twee parameters die hier van belang zijn, zijn de attack time en de release time. Deze twee parameters kan je aan de linkerzijde van de applicatie instellen, en bekijken hoe de output, en dus compressie, verandert.",
                                      "Statische eigenschappen zijn dan weer belangrijk om de compressieregeling in te stellen. Parameters die hier van belang zijn, zijn onder andere de kniepunten. Ook deze parameters kan je links aanpassen en zo zien hoe het uitgaande signaal verandert. Andere belangrijke parameters, die je links niet kan instellen, zijn de compressie ratio en de insertion gain. De compressie ratio is de verhouding tussen de verandering van het input-geluidsnivevau en de verandering van het output-geluidsniveau. Op het IO-diagram komt de compressie ratio overeen met de helling van de lijn tussen kniepunt 1 en kniepunt 2. Een laatste belangrijke parameter is de insertion gain. Deze geeft het verschil weer tussen niet-versterkte en het versterkte signaal, m.a.w. input - output.", style = "default")),
@@ -498,7 +491,7 @@ server <- function(input, output, session){
                h2("Hoorapparaat"),
                h5("Een hoorapparaat is een niet-invasieve revalidatie voor mensen met gehoorproblemen."),
                h3("Compressiesysteem van een hoorapparaat"),
-               bsCollapse(id = "hoorapparaat_mainpanel", 
+               bsCollapse(id = "hoorapparaat_mainpanel",
                           bsCollapsePanel("Meer informatie", "De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte, stillere geluiden meer versterkt moeten worden dan harde, luide geluiden. Een van de grootste uitdagingen is daarom ook om zachte geluiden net hoorbaar te maken, terwijl harde geluiden niet onaangenaam luid worden.",
                                           "Verschillende parameters zijn van belang bij het compressiesysteem van een hoorapparaat, en ze onderscheiden zich in dynamische en statische karakteristieken.",
                                           "Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden. De twee parameters die hier van belang zijn, zijn de attack time en de release time. Deze twee parameters kan je aan de linkerzijde van de applicatie instellen, en bekijken hoe de output, en dus compressie, verandert.",
@@ -526,7 +519,7 @@ server <- function(input, output, session){
       )
     }
   })
-  
+
   ## Make audio variable, depending on input
   audio_HA <- reactive({
     if(input$hoorapparaat_geluidInput1 == 1){ load.wave("www/hello.wav") } # mannenstenm
@@ -534,7 +527,7 @@ server <- function(input, output, session){
     else if(input$hoorapparaat_geluidInput1 == 3) { load.wave("www/short_music.wav") } # kort muziekje
     else if(input$hoorapparaat_geluidInput1 == 4) { load.wave("www/500ms_sinus_1khz.wav")} # kort muziekje
   })
-  
+
   ## Play input sound
   conditionalAudio_IH <- reactive({
     if(input$hoorapparaat_geluidInput1 == 1){ tags$audio(src = "hello.wav", type = "audio/wav", controls = NA) } # mannenstenm
@@ -542,15 +535,15 @@ server <- function(input, output, session){
     else if(input$hoorapparaat_geluidInput1 == 3) { tags$audio(src = "short_music.wav", type = "audio/wav", controls = NA) } # kort muziekje
     else if(input$hoorapparaat_geluidInput1 == 4) { tags$audio(src = "500ms_sinus_1khz.wav", type = "audio/wav", controls = NA) } # kort muziekje
   })
-  
+
   output$myAudio_IH <- renderUI(conditionalAudio_IH())
-  
-  
+
+
   ## Play input signal if the button has been clicked
   observeEvent(input$playInputHoorapparaat, {
     audio::play(audio_HA())
   })
-  
+
   ranges_ha_input <- reactiveValues(x = NULL, y = NULL)
   ## Plot input signal
   Hoorapparaat_inputSignal <- reactive({
@@ -560,7 +553,7 @@ server <- function(input, output, session){
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_input$x, ylim = ranges_ha_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")  
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_input$x, ylim = ranges_ha_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
     }
     ## boo
     else if(input$hoorapparaat_geluidInput1 == 2){
@@ -568,7 +561,7 @@ server <- function(input, output, session){
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_input$x, ylim = ranges_ha_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")  
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_input$x, ylim = ranges_ha_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
     }
     ## alarm
     else if(input$hoorapparaat_geluidInput1 == 3){
@@ -576,12 +569,12 @@ server <- function(input, output, session){
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_input$x, ylim = ranges_ha_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")  
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_input$x, ylim = ranges_ha_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
     }
   })
-  
+
   output$Input_Hoorapparaat <- renderPlot({Hoorapparaat_inputSignal()})
-  
+
   # When a double-click happens, check if there's a brush on the plot.
   # If so, zoom to the brush bounds; if not, reset the zoom.
   observeEvent(input$plot1_ha_dblclick, {
@@ -589,14 +582,14 @@ server <- function(input, output, session){
     if (!is.null(brush)) {
       ranges_ha_input$x <- c(brush$xmin, brush$xmax)
       ranges_ha_input$y <- c(brush$ymin, brush$ymax)
-      
+
     } else {
       ranges_ha_input$x <- NULL
       ranges_ha_input$y <- NULL
     }
   })
-  
-  
+
+
   ## Get parameter values
   attackTime_HA <- reactive({input$attackTime})
   releaseTime_HA <- reactive({input$releaseTime})
@@ -604,17 +597,17 @@ server <- function(input, output, session){
   kniepunt1_y <- reactive({input$kniepunt1y})
   kniepunt2_x <- reactive({input$kniepunt2x})
   kniepunt2_y <- reactive({input$kniepunt2y})
-  
+
   ## Call compress function with selected wav-file and selected/configured parameters
   resultHearingAid <- reactive({
     compress(audio_HA()[1:length(audio_HA())], list(type='agc'), attackTime_HA(), releaseTime_HA(), kniepunt1_x(), kniepunt1_y(), kniepunt2_x(), kniepunt2_y())
   })
-  
+
   ## Play resulting sound if the button has been clicked
   # observeEvent(input$playOutputHoorapparaat, {
   #   audio::play(as.audioSample(unlist(resultHearingAid())))
   # })
-  
+
   ### Play output signal
   conditional_audio_hoorapparaat_O <- reactive({
     # MANNENSTEM
@@ -626,22 +619,22 @@ server <- function(input, output, session){
     # SINUS
     else if(input$hoorapparaat_geluidInput1 == 4){ tags$audio(src = "sinus_hoorapparaat.wav", type = "audio/wav", controls = NA) }
   })
-  
-  
+
+
   output$myAudio_OH <- renderUI(conditional_audio_hoorapparaat_O())
-  
-  
+
+
   ## Plot output signal
   # sound_ha <- reactive({as.audioSample(resultHearingAid())})
   # s2 <- reactive({sound_ha() / 2^(8 - 1)})
   # ha_out <- reactive({(0:(length(sound_ha())-1)) / sound_ha()$rate})
   # ha_out_ms <- reactive({ha_out() * 1000}) ##scale to milliseconds
   # #df_ha <- reactive({data.frame(x = ha_out_ms(), y = s2())})
-  # 
+  #
    ranges_ha_output <- reactiveValues(x = NULL, y = NULL)
-  # 
+  #
   # Hoorapparaat_outputSignal <- reactive({
-  #   plot(ha_out_ms(), s2(), type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
+  #   plot(ha_out_ms(), s2(), type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")
   # })
   Hoorapparaat_outputSignal <- reactive({
     ## male
@@ -650,7 +643,7 @@ server <- function(input, output, session){
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")
     }
     ## female
     else if(input$hoorapparaat_geluidInput1 == 2){
@@ -658,7 +651,7 @@ server <- function(input, output, session){
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")
     }
     ## short music
     else if(input$hoorapparaat_geluidInput1 == 3){
@@ -666,7 +659,7 @@ server <- function(input, output, session){
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")   
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")
     }
     ## sinus
     else if(input$hoorapparaat_geluidInput1 == 4){
@@ -674,12 +667,12 @@ server <- function(input, output, session){
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")    
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")
     }
   })
-  
+
   output$Output_Hoorapparaat <- renderPlot({Hoorapparaat_outputSignal()})
-  
+
   # When a double-click happens, check if there's a brush on the plot.
   # If so, zoom to the brush bounds; if not, reset the zoom.
   observeEvent(input$plot2_ha_dblclick, {
@@ -687,14 +680,14 @@ server <- function(input, output, session){
     if (!is.null(brush)) {
       ranges_ha_output$x <- c(brush$xmin, brush$xmax)
       ranges_ha_output$y <- c(brush$ymin, brush$ymax)
-      
+
     } else {
       ranges_ha_output$x <- NULL
       ranges_ha_output$y <- NULL
     }
   })
-  
-  
+
+
   ## Make IO diagram
   #End point
   x_end <- 200
@@ -704,11 +697,11 @@ server <- function(input, output, session){
                y = c(0, kniepunt1_y(), kniepunt2_y(), y_end)
     )
   })
-  
+
   IO_plot <- reactive({
-    ggplot(df(), aes(x)) + 
+    ggplot(df(), aes(x)) +
       geom_line(aes(y = y), colour = "black") +
-      geom_point(aes(y = y), colour = "limegreen", size = 3) + 
+      geom_point(aes(y = y), colour = "limegreen", size = 3) +
       scale_y_continuous(breaks = seq(0,101,10)) +
       scale_x_continuous(breaks = seq(0,201,10)) +
       theme_bw() +
@@ -716,20 +709,20 @@ server <- function(input, output, session){
       ylab("Output level (dB SPL)") +
       ggtitle("IO diagram")
   })
-  
+
   output$IO_diagram <- renderPlot({IO_plot()})
-  
+
 }
 
 vocoder <- function(d,fs,nbands, carrier){
   if(missing(fs)){fs <- 44100}
   if(missing(nbands)){nbands <- 4}
-  
+
   type <-'freedom'
-  
+
   # Determine analysis crossover frequencies
   analysis_cutoff <- analysis_cutoff_freqs_cochlear(nbands, type)
-  
+
   # Create analysis filter bank
   filter_order <- 4
   #analysis_filters_B = zeros(filter_order*2+1,nbands)
@@ -740,16 +733,16 @@ vocoder <- function(d,fs,nbands, carrier){
     analysis_filters_B[,i] <- results$b
     analysis_filters_A[,i] <- results$a
   }
-  
+
   # Create synthesis filter bank
   resynthesis_filters_B <- analysis_filters_B
   resynthesis_filters_A <- analysis_filters_A
-  
+
   # Create LP filter for envelope detection
   resultsButter <- butter(4, 50/fs*2)
   Blp <- resultsButter$b
   Alp <- resultsButter$a
-  
+
   # Process input signal
   out <- matrix(0,length(d), nbands)
   filter_list <- list(length=nbands)
@@ -767,30 +760,30 @@ vocoder <- function(d,fs,nbands, carrier){
     t_f_list[[i]] <- t_f
     filterplot <- plot_filterbank(analysis_filters_B, analysis_filters_A, i, 'Bandpass')
     filter_list[[i]] <- filterplot
-    
+
     # BP filtered signal
     bpfilterplot <- plot_envelope(t_f, fs, 'BP-Filtered Signal')
     bpfilter_list[[i]] <- bpfilterplot
-    
+
     # Envelope detection
     t_e = (t_f+abs(t_f))/2
     t_env = filter(Blp,Alp,t_e)
     t_e_list[[i]] <- t_env
     envelopeplot <- plot_envelope(t_env, fs, 'Envelope')
     envelope_list[[i]] <- envelopeplot
-    
+
     # Create noise band
     noiseband = filter(resynthesis_filters_B[,i], resynthesis_filters_A[,i], noise)
     noise_list[[i]] <- noiseband
     out[,i] <- t_env[1:length(t_env)]*noiseband[1:length(noiseband)]
     carrierplot <- plot_filterbank(resynthesis_filters_B, resynthesis_filters_A, i, 'Carrier')
     carrier_list[[i]] <- carrierplot
-    
+
     noiseenvplot <- plot_both(t_env, noiseband, fs, "Noiseband * envelope")
     noiseenvl_list[[i]] <- noiseenvplot
-    
+
   }
-  
+
   # nrColumns <- 5
   # if(nbands == 1){
   #   combined_list <- plot_grid(filter_list[[1]], bpfilter_list[[1]], envelope_list[[1]], carrier_list[[1]], noiseenvl_list[[1]], nrow = 1, ncol = nrColumns)
@@ -813,12 +806,12 @@ vocoder <- function(d,fs,nbands, carrier){
   #   first_row <- plot_grid(filter_list[[1]], bpfilter_list[[1]], envelope_list[[1]], carrier_list[[1]], noiseenvl_list[[1]], ncol = nrColumns)
   #   combined_list <- plot_grid(fourth_row, third_row, second_row, first_row, nrow = 4)
   # }
-  
+
   r=rowSums(out,2)
   #outputList <- list("res" = r, "filterT" = t_f_list, "envT" = t_env_list, "noiseList" = noise_list, "af_B" = analysis_filters_B, "af_A" = analysis_filters_A, "rf_B" = resynthesis_filters_B, "rf_A" = resynthesis_filters_A)
   #outputList <- list("res" = r, "plots" = plotList)
   #return(outputList)
-  outputList <- list("r" = r, "fplot" = filter_list, "bpplot" = bpfilter_list, "eplot" = envelope_list, "cplot" = carrier_list, "noiseenvl" = noiseenvl_list)#, "combined" = combined_list) 
+  outputList <- list("r" = r, "fplot" = filter_list, "bpplot" = bpfilter_list, "eplot" = envelope_list, "cplot" = carrier_list, "noiseenvl" = noiseenvl_list)#, "combined" = combined_list)
   #return(r)
   return(outputList)
 }
@@ -835,7 +828,7 @@ plot_both <- function(T1, T2, fs, titleName){
     ggtitle(titleName)
   #plot(x, T, type="l", xlab = "Time (s)", ylab = "Amplitude", main = titleName)
   return(res_plot)
-  
+
 }
 
 
@@ -862,7 +855,7 @@ plot_filterbank <- function(B,A, i, titleName){
   #xlabel("Freqeuncy")
   #ylabel("Magnitude")
   #set(gca, 'XScale', 'log')
-  
+
 }
 
 plot_envelope <- function(T1, fs, titleName) {
@@ -882,9 +875,9 @@ plot_envelope <- function(T1, fs, titleName) {
 analysis_cutoff_freqs_cochlear <- function(nbands, type){
   # nbands: number of bands
   # type: only 'freedom' supported
-  
+
   if(missing(type)){type <- 'freedom'}
-  
+
   if(type == 'freedom'){
     p = list()
     p$num_bands <- nbands
@@ -909,7 +902,7 @@ FFT_band_bins <- function(num_bands){
   # FFT_band_bins: calculate number of bins per band vector for FFT filterbanks.
   # function widths = FFT_band_bins(num_bands)
   # Uses the same frequency boundaries as WinDPS ACE & CIS.
-  
+
   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   #    Copyright: Cochlear Ltd
   #      $Change: 86418 $
@@ -948,9 +941,9 @@ compress <- function(signal, p, attackTime, releaseTime, knee1_x, knee1_y, knee2
   # Perform compression on the input signal
   # (based on eas/agc.m)
   #--------------------------------------------------------------------------
-  if(missing(p)){p = list(type = 'agc')}  
+  if(missing(p)){p = list(type = 'agc')}
   # if(missing(attackTime)) { attackTime = 5}
-  
+
   # Set parameters
   #--------------------------------------------------------------------------
   if (!("audio_sample_rate" %in% names(p))){
@@ -965,14 +958,14 @@ compress <- function(signal, p, attackTime, releaseTime, knee1_x, knee1_y, knee2
   if (!("rms2dbfac" %in% names(p))){
     p$rms2dbfac <- 10^(90/20) #calibration factor to convert RMS values to real dB values ([] -> [dB SPL])
   }
-  
+
   if (!("attack_time" %in% names(p))){
     p$attack_time <- attackTime #attack time in ms [5]
   }
   if (!("recovery_time" %in% names(p))){
     p$recovery_time <- releaseTime #recovery time in ms [50]
   }
-  
+
   if (!("start_x" %in% names(p))){
     p$start_x <- 0 #x coordinate of the start point
   }
@@ -994,14 +987,14 @@ compress <- function(signal, p, attackTime, releaseTime, knee1_x, knee1_y, knee2
   if (!("compression_sample_rate" %in% names(p))){
     p$compression_sample_rate <- 100 #number of samples per dB (ms)
   }
-  
+
   # block_len = round(p.rms_len/1000*p.audio_sample_rate);
   # block_skip = round(p.rms_skip/1000*p.audio_sample_rate);
   block_len = 128
   block_skip = 128
   numframes = ceiling(length(signal)/block_skip)
-  
-  
+
+
   # Apply compression function
   #--------------------------------------------------------------------------
   Hv=p$start_y-p$start_x;    # initial value for gain
@@ -1009,64 +1002,64 @@ compress <- function(signal, p, attackTime, releaseTime, knee1_x, knee1_y, knee2
   gains = rep(0, length(signal))
   #rmsdbl=zeros(numframes,1);
   rmsdbl = matrix(0, numframes, 1)
-  
+
   for(frame in 1:numframes){
     hier = (frame-1)*block_skip+1
-    
+
     if (frame != numframes){data = signal[hier:hier+block_len-1]}
     else{ # last frame may be shorter
       data = signal[hier:tail(signal, 1)]
-      block_len = length(data) 
-    } 
-    
+      block_len = length(data)
+    }
+
     rms=sqrt(mean(data^2))
     if (rms == 0) {rmsdb = -100}
     else{rmsdb = 20*log10(rms*p$rms2dbfac)} # rms value [dB SPL]
     rmsdbl[frame] = rmsdb
-    
+
     # calculate gain H = output sound level - input sound level [dB SPL] (gain for "instantaneous compression")
     if (rmsdb < p$knee_x){  # linear
       H = (rmsdb - p$start_x)*((p$knee_y - p$start_y)/(p$knee_x - p$start_x)) + p$start_y
-    }    
+    }
     else if (rmsdb > p$end_x){ # limiting
-      H = p$end_y  
-    }  
+      H = p$end_y
+    }
     else{ # compressed
-      H = (rmsdb - p$knee_x)*((p$end_y - p$knee_y)/(p$end_x - p$knee_x)) + p$knee_y  
+      H = (rmsdb - p$knee_x)*((p$end_y - p$knee_y)/(p$end_x - p$knee_x)) + p$knee_y
     }
     H = H - rmsdb # gain
-    
+
     r = Hv - H # difference in gain (this and previous frame)
-    
+
     if (r == 0){ #no gain change
       gains[hier:hier+block_len-1] = H
-      #continue 
+      #continue
       next #(jump to next iteration)
     }
-    
+
     if (r < 0){ # decreasing gain -> release
       tau = p$recovery_time/1000*p$audio_sample_rate
     }
     else{ # increasing gain -> attack
       tau = p$attack_time/1000*p$audio_sample_rate
-    }    
-    
+    }
+
     beta = exp(-1/tau)
-    
+
     for (n in 1:block_len){
       # gain = Hv * (exp(-1/tau)^(n-1)) + H * (1-exp(-1/tau)^(n-1)) --> H
       alpha = H + r
       r = r*beta
       gains[hier+n-1] = alpha
     }
-    
+
     Hv = alpha # last gain value in this iteration (= reference in next iteration)
   }
-  
+
   gains[dim(signal)] = Hv # last gain in last iteration
-  
+
   result = signal*10^(gains/20)
-  
+
   #returnList <- list("result" = result, "gains" = gains)
   #return(returnList)
   return(result)
