@@ -183,26 +183,26 @@ server <- function(input, output, session){
       sidebarLayout(
         sidebarPanel(id = "Sidebar1", width = width_sidebar, style = "position:fixed;width:22%;",
                      # Geluid input
-                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q1 {vertical-align: top;}"),
-                        bsButton("q1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qi1 {vertical-align: top;}"),
+                        bsButton("qi1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                      fluidRow(
                        column(6,  selectInput("vocoder_geluidInput1", label = "",
-                                              choices = list("Mannenstem" = 1, "Vrouwenstem" = 2, "Muziek" = 3, "Sinus 1kHz" = 4), selected = 1))
+                                              choices = list("Bus" = 1, "Manzin" = 2, "Sinus" = 3, "Vrouwzin" = 4), selected = 1))
                      ),
-                     bsPopover(id="q1", title = "<b>Geluid kiezen</b>",
+                     bsPopover(id="qi1", title = "<b>Geluid kiezen</b>",
                                content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
-                                                "<p> <b>Mannenstem:</b> Mannenstem die Hello zegt. </p>",
-                                                "<p> <b>Vrouwenstem:</b> Vrouwenstem die Hello zegt. </p>",
-                                                "<p> <b>Muziek:</b> Kort muziekje. </p>",
-                                                "<p> <b>Sinus:</b> Sinus test toon van 1kHz. </p>"),
+                                                "<p> <b>Bus:</b> Een man die het woord bus zegt. </p>",
+                                                "<p> <b>Manzin:</b> Een man die de volgende zin zegt: De mensen werden stil. </p>",
+                                                "<p> <b>Sinus:</b> Een sinus test toon. </p>",
+                                                "<p> <b>Vrouwzin:</b> Een vrouw die de volgende zin zegt: Morgen gaan we naar de stad. </p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")
                      ),
                      # Zoomen
-                     h3("Zoomen", style="color:#191970", tags$style(type = "text/css", "#q2 {vertical-align: top;}"),
-                        bsButton("q2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-                     bsPopover(id="q2", title = "<b>Zoomen</b>",
+                     h3("Zoomen", style="color:#191970", tags$style(type = "text/css", "#qi2 {vertical-align: top;}"),
+                        bsButton("qi2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     bsPopover(id="qi2", title = "<b>Zoomen</b>",
                                content = paste0("<p><b> Inzoomen </b> in de input en output grafiek kan je doen door het gebied te selecteren met de muis waarop je wilt inzoomen. Vervolgens dubbelklik je erop.</p>",
                                                 "<p><b> Uitzoomen </b> doe je dan weer om gewoon gelijk waar op de grafiek te dubbelklikken, zonder eerst een gebied te selecteren.</p>"),
                                placement = "right",
@@ -212,10 +212,8 @@ server <- function(input, output, session){
         ),
         mainPanel(
           h3("Inkomende signaal"),
-          h5("Een vocoder, of voice encoder, verwerft de spectrale eigenschappen van een inkomend signaal, waarna die eigenschappen worden toegepast op het uitgaande signaal."),
-          h5("Je kan in deze module aan de linkerkant het geluid kiezen."),
-          h5("Inzoomen kan je door het gebied waarin je wilt inzoomen te markeren en hierna te dubbelklikken. Uitzoomen doe je dan weer door te dubbelklikken op de grafiek."),
-          h5("De eerste grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken."),
+          h5("Een vocoder kan worden gebruikt als simulatie van de signaalverwerking in een cochlear implantaat"),
+          h5("Onderstaande grafieken geven het inkomende signaal op tijdsdomein weer."),
           withSpinner(plotOutput("Input_Vocoder", dblclick = "plot1_v_dblclick",
                                  brush = brushOpts(id = "plot1_v_brush", resetOnNew = TRUE))),
           br(),
@@ -235,10 +233,8 @@ server <- function(input, output, session){
     } else {
       tabPanel("",
                h3("Inkomende signaal"),
-               h5("Een vocoder, of voice encoder, verwerft de spectrale eigenschappen van een inkomend signaal, waarna die eigenschappen worden toegepast op het uitgaande signaal."),
-               h5("Je kan in deze module aan de linkerkant het geluid kiezen."),
-               h5("Inzoomen kan je door het gebied waarin je wilt inzoomen te markeren en hierna te dubbelklikken. Uitzoomen doe je dan weer door te dubbelklikken. op de grafiek."),
-               h5("De eerste grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken."),
+               h5("Een vocoder kan worden gebruikt als simulatie van de signaalverwerking in een cochlear implantaat"),
+               h5("Onderstaande grafieken geven het inkomende signaal op tijdsdomein weer."),
                withSpinner(plotOutput("Input_Vocoder", dblclick = "plot1_v_dblclick",
                                       brush = brushOpts(id = "plot1_v_brush", resetOnNew = TRUE))),
                br(),
@@ -269,10 +265,10 @@ server <- function(input, output, session){
   
   
   conditionalAudio <- reactive({
-    if(input$vocoder_geluidInput1 == 1){ tags$audio(src = "hello.wav", type = "audio/wav", controls = NA) } # mannenstenm
-    else if(input$vocoder_geluidInput1 == 2) { tags$audio(src = "female_word.wav", type = "audio/wav", controls = NA) } # vrouwenstem
-    else if(input$vocoder_geluidInput1 == 3) { tags$audio(src = "short_music.wav", type = "audio/wav", controls = NA) } # kort muziekje
-    else if(input$vocoder_geluidInput1 == 4) { tags$audio(src = "500ms_sinus_1khz.wav", type = "audio/wav", controls = NA) } # kort muziekje
+    if(input$vocoder_geluidInput1 == 1){ tags$audio(src = "bus.wav", type = "audio/wav", controls = NA) } # bus
+    else if(input$vocoder_geluidInput1 == 2) { tags$audio(src = "manzin.wav", type = "audio/wav", controls = NA) } # manzin
+    else if(input$vocoder_geluidInput1 == 3) { tags$audio(src = "sin-step.wav", type = "audio/wav", controls = NA) } # sinus
+    else if(input$vocoder_geluidInput1 == 4) { tags$audio(src = "vrouwzin.wav", type = "audio/wav", controls = NA) } # vrouwzin
   })
   
   output$myAudio_IV <- renderUI(conditionalAudio())
@@ -282,33 +278,33 @@ server <- function(input, output, session){
   
   ## Plot input signal
   Vocoder_inputSignal <- reactive({
-    ## male
+    ## bus
     if(input$vocoder_geluidInput1 == 1){
-      sound <- tuneR::readWave("www/hello.wav")
+      sound <- tuneR::readWave("www/bus.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
       plot(timeArray, s1, type="l", col="black", xlim = ranges_v_input$x, ylim = ranges_v_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
     }
-    ## female
+    ## manzin
     else if(input$vocoder_geluidInput1 == 2){
-      sound <- tuneR::readWave("www/female_word.wav")
-      s1 <- sound@left / 2^(sound@bit - 1)
-      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
-      timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlim = ranges_v_input$x, ylim = ranges_v_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
-    }
-    ## music
-    else if(input$vocoder_geluidInput1 == 3){
-      sound <- tuneR::readWave("www/short_music.wav")
+      sound <- tuneR::readWave("www/manzin.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
       plot(timeArray, s1, type="l", col="black", xlim = ranges_v_input$x, ylim = ranges_v_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
     }
     ## sinus
+    else if(input$vocoder_geluidInput1 == 3){
+      sound <- tuneR::readWave("www/sin-step.wav")
+      s1 <- sound@left / 2^(sound@bit - 1)
+      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
+      timeArray <- timeArray * 1000 ##scale to milliseconds
+      plot(timeArray, s1, type="l", col="black", xlim = ranges_v_input$x, ylim = ranges_v_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")
+    }
+    ## vrouwzin
     else if(input$vocoder_geluidInput1 == 4){
-      sound <- tuneR::readWave("www/500ms_sinus_1khz.wav")
+      sound <- tuneR::readWave("www/vrouwzin.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
@@ -339,30 +335,29 @@ server <- function(input, output, session){
       sidebarLayout(
         sidebarPanel(id = "Sidebar2", width = width_sidebar, style = "position:fixed;width:22%;",
                      # Geluid input
-                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q1 {vertical-align: top;}"),
-                        bsButton("q1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qf1 {vertical-align: top;}"),
+                        bsButton("qf1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                      fluidRow(
                        column(6,  selectInput("vocoder_geluidInput_F", label = "",
-                                              choices = list("Mannenstem" = 1, "Vrouwenstem" = 2, "Muziek" = 3, "Sinus 1kHz" = 4), selected = 1))
+                                              choices = list("Bus" = 1, "Manzin" = 2, "Sinus" = 3, "Vrouwzin" = 4), selected = 1))
                      ),
-                     bsPopover(id="q1", title = "<b>Geluid kiezen</b>",
+                     bsPopover(id="qf1", title = "<b>Geluid kiezen</b>",
                                content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
-                                                "<p> <b>Mannenstem:</b> Mannenstem die Hello zegt. </p>",
-                                                "<p> <b>Vrouwenstem:</b> Vrouwenstem die Hello zegt. </p>",
-                                                "<p> <b>Muziek:</b> Kort muziekje. </p>",
-                                                "<p> <b>Sinus:</b> Sinus test toon van 1kHz. </p>"),
+                                                "<p> <b>Bus:</b> Een man die het woord bus zegt. </p>",
+                                                "<p> <b>Manzin:</b> Een man die de volgende zin zegt: De mensen werden stil. </p>",
+                                                "<p> <b>Sinus:</b> Een sinus test toon. </p>",
+                                                "<p> <b>Vrouwzin:</b> Een vrouw die de volgende zin zegt: Morgen gaan we naar de stad. </p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")
                      ),
                      # Number of channels input
-                     sliderInput("channelsVocoder_F", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#q2 {vertical-align: top;}"),
-                                                         bsButton("q2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     sliderInput("channelsVocoder_F", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#qf2 {vertical-align: top;}"),
+                                                         bsButton("qf2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                                  min = 1, max = 4, step = 1, value = 4),
-                     bsPopover(id="q2", title = "<b>Aantal kanalen</b>",
+                     bsPopover(id="qf2", title = "<b>Aantal kanalen</b>",
                                content = paste0("<p>Kies hier het aantal kanalen.</p>",
-                                                "<p>Een kanaal komt overeen met een elektrode die op de cochlea zal zitten.</p>",
-                                                "<p> Door meerdere kanalen te hebben, zullen er meerdere bandpassfilters gebruikt worden en zal het inkomende geluid dus beter gereconstrueerd kunnen worden.</p>"),
+                                                "<p>Het aantal kanalen bepaalt het aantal filter banden dat gebruikt wordt, en dus de spectrale resolutie van de analyse.</p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body"))
@@ -370,8 +365,8 @@ server <- function(input, output, session){
         mainPanel(
           h2("Bandpass filters"),
           h5("De vocoder van een cochleair implantaat werkt in verschillende stappen."),
-          h5("Allereerst wordt het inkomende signaal opgedeeld op een aantal bandpasfilters, zoals je in de onderstaande grafieken kunt zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden."),
-          h5("Per bandpassfilter kan je een koppeling maken naar een elektrode van het cochleair implantaat. Indien je dus 4 bandpassfilters gebruikt, kan je die koppelen met 4 elektrodes, die je kanalen voorstellen. Daarom is het aantal kanalen dat je ingesteld hebt gelijk aan het aantal bandpassfilters."),
+          h5("Allereerst wordt het inkomende signaal opgedeeld in een aantal frequentiebanden, zoals je in de eerste kolom (Bandpass) kan zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden. De grafieken voor hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden, zie je in de kolom BP-Filtered signal."),
+          h5("Het aantal kanalen dat je ingesteld hebt is gelijk aan het aantal bandpassfilters. In een cochlear implantaat is er meestal een kanaal voor elke elektrode in de cochlea."),
           withSpinner(plotOutput("Filters_vocoder")),
           fluidRow(
             column(6, align="center", offset = 3,
@@ -385,8 +380,8 @@ server <- function(input, output, session){
       tabPanel("",
                h2("Bandpass filters"),
                h5("De vocoder van een cochleair implantaat werkt in verschillende stappen."),
-               h5("Allereerst wordt het inkomende signaal opgedeeld op een aantal bandpasfilters, zoals je in de onderstaande grafieken kunt zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden."),
-               h5("Per bandpassfilter kan je een koppeling maken naar een elektrode van het cochleair implantaat. Indien je dus 4 bandpassfilters gebruikt, kan je die koppelen met 4 elektrodes, die je kanalen voorstellen. Daarom is het aantal kanalen dat je ingesteld hebt gelijk aan het aantal bandpassfilters."),
+               h5("Allereerst wordt het inkomende signaal opgedeeld in een aantal frequentiebanden, zoals je in de eerste kolom (Bandpass) kan zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden. De grafieken voor hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden, zie je in de kolom BP-Filtered signal."),
+               h5("Het aantal kanalen dat je ingesteld hebt is gelijk aan het aantal bandpassfilters. In een cochlear implantaat is er meestal een kanaal voor elke elektrode in de cochlea."),
                withSpinner(plotOutput("Filters_vocoder")),
                fluidRow(
                  column(6, align="center", offset = 3,
@@ -411,10 +406,10 @@ server <- function(input, output, session){
   
   ## Make audio variable, depending on input
   audio_vocoder_F <- reactive({
-    if(input$vocoder_geluidInput_F == 1){ load.wave("www/hello.wav") } # mannenstenm
-    else if(input$vocoder_geluidInput_F == 2) { load.wave("www/female_word.wav")} # vrouwenstem
-    else if(input$vocoder_geluidInput_F == 3) { load.wave("www/short_music.wav") } # kort muziekje
-    else if(input$vocoder_geluidInput_F == 4) { load.wave("www/500ms_sinus_1khz.wav")} # kort muziekje
+    if(input$vocoder_geluidInput_F == 1){ load.wave("www/bus.wav") } # bus
+    else if(input$vocoder_geluidInput_F == 2) { load.wave("www/manzin.wav")} # manzin
+    else if(input$vocoder_geluidInput_F == 3) { load.wave("www/sin-step.wav") } # sinus
+    else if(input$vocoder_geluidInput_F == 4) { load.wave("www/vrouwzin.wav")} # vrouwzin
   })
   
   ## Get parameter values
@@ -449,30 +444,29 @@ server <- function(input, output, session){
       sidebarLayout(
         sidebarPanel(id = "Sidebar3", width = width_sidebar, style = "position:fixed;width:22%;",
                      # Geluid input
-                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q1 {vertical-align: top;}"),
-                        bsButton("q1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qbpf1 {vertical-align: top;}"),
+                        bsButton("qbpf1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                      fluidRow(
                        column(6,  selectInput("vocoder_geluidInput_BPF", label = "",
-                                              choices = list("Mannenstem" = 1, "Vrouwenstem" = 2, "Muziek" = 3, "Sinus 1kHz" = 4), selected = 1))
+                                              choices = list("Bus" = 1, "Manzin" = 2, "Sinus" = 3, "Vrouwzin" = 4), selected = 1))
                      ),
-                     bsPopover(id="q1", title = "<b>Geluid kiezen</b>",
+                     bsPopover(id="qbpf1", title = "<b>Geluid kiezen</b>",
                                content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
-                                                "<p> <b>Mannenstem:</b> Mannenstem die Hello zegt. </p>",
-                                                "<p> <b>Vrouwenstem:</b> Vrouwenstem die Hello zegt. </p>",
-                                                "<p> <b>Muziek:</b> Kort muziekje. </p>",
-                                                "<p> <b>Sinus:</b> Sinus test toon van 1kHz. </p>"),
+                                                "<p> <b>Bus:</b> Een man die het woord bus zegt. </p>",
+                                                "<p> <b>Manzin:</b> Een man die de volgende zin zegt: De mensen werden stil. </p>",
+                                                "<p> <b>Sinus:</b> Een sinus test toon. </p>",
+                                                "<p> <b>Vrouwzin:</b> Een vrouw die de volgende zin zegt: Morgen gaan we naar de stad. </p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")
                      ),
                      # Number of channels input
-                     sliderInput("channelsVocoder_BPF", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#q3 {vertical-align: top;}"),
-                                                           bsButton("q3", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     sliderInput("channelsVocoder_BPF", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#qbpf2 {vertical-align: top;}"),
+                                                           bsButton("qbpf2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                                  min = 1, max = 4, step = 1, value = 4),
-                     bsPopover(id="q3", title = "<b>Aantal kanalen</b>",
+                     bsPopover(id="qbpf2", title = "<b>Aantal kanalen</b>",
                                content = paste0("<p>Kies hier het aantal kanalen.</p>",
-                                                "<p>Een kanaal komt overeen met een elektrode die op de cochlea zal zitten.</p>",
-                                                "<p> Door meerdere kanalen te hebben, zullen er meerdere bandpassfilters gebruikt worden en zal het inkomende geluid dus beter gereconstrueerd kunnen worden.</p>"),
+                                                "<p>Het aantal kanalen bepaalt het aantal filter banden dat gebruikt wordt, en dus de spectrale resolutie van de analyse.</p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body"))
@@ -517,10 +511,10 @@ server <- function(input, output, session){
   
   ## Make audio variable, depending on input
   audio_vocoder_BPF <- reactive({
-    if(input$vocoder_geluidInput_BPF == 1){ load.wave("www/hello.wav")} # mannenstenm
-    else if(input$vocoder_geluidInput_BPF == 2) { load.wave("www/female_word.wav")} # vrouwenstem
-    else if(input$vocoder_geluidInput_BPF == 3) { load.wave("www/short_music.wav") } # kort muziekje
-    else if(input$vocoder_geluidInput_BPF == 4) { load.wave("www/500ms_sinus_1khz.wav") } # kort muziekje
+    if(input$vocoder_geluidInput_BPF == 1){ load.wave("www/bus.wav")} # bus
+    else if(input$vocoder_geluidInput_BPF == 2) { load.wave("www/manzin.wav")} # manzin
+    else if(input$vocoder_geluidInput_BPF == 3) { load.wave("www/sin-step.wav") } # sinus
+    else if(input$vocoder_geluidInput_BPF == 4) { load.wave("www/vrouwzin.wav") } # vrouwzin
   })
   
   ## Get parameter values
@@ -555,30 +549,29 @@ server <- function(input, output, session){
       sidebarLayout(
         sidebarPanel(id = "Sidebar4", width = width_sidebar, style = "position:fixed;width:22%;",
                      # Geluid input
-                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q1 {vertical-align: top;}"),
-                        bsButton("q1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qe1 {vertical-align: top;}"),
+                        bsButton("qe1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                      fluidRow(
                        column(6,  selectInput("vocoder_geluidInput_E", label = "",
-                                              choices = list("Mannenstem" = 1, "Vrouwenstem" = 2, "Muziek" = 3, "Sinus 1kHz" = 4), selected = 1))
+                                              choices = list("Bus" = 1, "Manzin" = 2, "Sinus" = 3, "Vrouwzin" = 4), selected = 1))
                      ),
-                     bsPopover(id="q1", title = "<b>Geluid kiezen</b>",
+                     bsPopover(id="qe1", title = "<b>Geluid kiezen</b>",
                                content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
-                                                "<p> <b>Mannenstem:</b> Mannenstem die Hello zegt. </p>",
-                                                "<p> <b>Vrouwenstem:</b> Vrouwenstem die Hello zegt. </p>",
-                                                "<p> <b>Muziek:</b> Kort muziekje. </p>",
-                                                "<p> <b>Sinus:</b> Sinus test toon van 1kHz. </p>"),
+                                                "<p> <b>Bus:</b> Een man die het woord bus zegt. </p>",
+                                                "<p> <b>Manzin:</b> Een man die de volgende zin zegt: De mensen werden stil. </p>",
+                                                "<p> <b>Sinus:</b> Een sinus test toon. </p>",
+                                                "<p> <b>Vrouwzin:</b> Een vrouw die de volgende zin zegt: Morgen gaan we naar de stad. </p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")
                      ),
                      # Number of channels input
-                     sliderInput("channelsVocoder_E", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#q4 {vertical-align: top;}"),
-                                                         bsButton("q4", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     sliderInput("channelsVocoder_E", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#qe2 {vertical-align: top;}"),
+                                                         bsButton("qe2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                                  min = 1, max = 4, step = 1, value = 4),
-                     bsPopover(id="q4", title = "<b>Aantal kanalen</b>",
+                     bsPopover(id="qe2", title = "<b>Aantal kanalen</b>",
                                content = paste0("<p>Kies hier het aantal kanalen.</p>",
-                                                "<p>Een kanaal komt overeen met een elektrode die op de cochlea zal zitten.</p>",
-                                                "<p> Door meerdere kanalen te hebben, zullen er meerdere bandpassfilters gebruikt worden en zal het inkomende geluid dus beter gereconstrueerd kunnen worden.</p>"),
+                                                "<p>Het aantal kanalen bepaalt het aantal filter banden dat gebruikt wordt, en dus de spectrale resolutie van de analyse.</p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body"))
@@ -626,10 +619,10 @@ server <- function(input, output, session){
   
   ## Make audio variable, depending on input
   audio_vocoder_E <- reactive({
-    if(input$vocoder_geluidInput_E == 1){ load.wave("www/hello.wav")} # mannenstenm
-    else if(input$vocoder_geluidInput_E == 2) { load.wave("www/female_word.wav")} # vrouwenstem
-    else if(input$vocoder_geluidInput_E == 3) { load.wave("www/short_music.wav") } # kort muziekje
-    else if(input$vocoder_geluidInput_E == 4) { load.wave("www/500ms_sinus_1khz.wav") } # kort muziekje
+    if(input$vocoder_geluidInput_E == 1){ load.wave("www/bus.wav")} # bus
+    else if(input$vocoder_geluidInput_E == 2) { load.wave("www/manzin.wav")} # manzin
+    else if(input$vocoder_geluidInput_E == 3) { load.wave("www/sin-step.wav") } # sinus
+    else if(input$vocoder_geluidInput_E == 4) { load.wave("www/vrouwzin.wav") } # vrouwzin
   })
   
   ## Get parameter values
@@ -664,30 +657,29 @@ server <- function(input, output, session){
       sidebarLayout(
         sidebarPanel(id = "Sidebar5", width = width_sidebar, style = "position:fixed;width:22%;",
                      # Geluid input
-                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q1 {vertical-align: top;}"),
-                        bsButton("q1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qc1 {vertical-align: top;}"),
+                        bsButton("qc1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                      fluidRow(
                        column(6,  selectInput("vocoder_geluidInput_C", label = "",
-                                              choices = list("Mannenstem" = 1, "Vrouwenstem" = 2, "Muziek" = 3, "Sinus 1kHz" = 4), selected = 1))
+                                              choices = list("Bus" = 1, "Manzin" = 2, "Sinus" = 3, "Vrouwzin" = 4), selected = 1))
                      ),
-                     bsPopover(id="q1", title = "<b>Geluid kiezen</b>",
+                     bsPopover(id="qc1", title = "<b>Geluid kiezen</b>",
                                content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
-                                                "<p> <b>Mannenstem:</b> Mannenstem die Hello zegt. </p>",
-                                                "<p> <b>Vrouwenstem:</b> Vrouwenstem die Hello zegt. </p>",
-                                                "<p> <b>Muziek:</b> Kort muziekje. </p>",
-                                                "<p> <b>Sinus:</b> Sinus test toon van 1kHz. </p>"),
+                                                "<p> <b>Bus:</b> Een man die het woord bus zegt. </p>",
+                                                "<p> <b>Manzin:</b> Een man die de volgende zin zegt: De mensen werden stil. </p>",
+                                                "<p> <b>Sinus:</b> Een sinus test toon. </p>",
+                                                "<p> <b>Vrouwzin:</b> Een vrouw die de volgende zin zegt: Morgen gaan we naar de stad. </p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")
                      ),
                      # Number of channels input
-                     sliderInput("channelsVocoder_C", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#q5 {vertical-align: top;}"),
-                                                         bsButton("q5", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     sliderInput("channelsVocoder_C", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#qc2 {vertical-align: top;}"),
+                                                         bsButton("qc2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                                  min = 1, max = 4, step = 1, value = 4),
-                     bsPopover(id="q5", title = "<b>Aantal kanalen</b>",
+                     bsPopover(id="qc2", title = "<b>Aantal kanalen</b>",
                                content = paste0("<p>Kies hier het aantal kanalen.</p>",
-                                                "<p>Een kanaal komt overeen met een elektrode die op de cochlea zal zitten.</p>",
-                                                "<p> Door meerdere kanalen te hebben, zullen er meerdere bandpassfilters gebruikt worden en zal het inkomende geluid dus beter gereconstrueerd kunnen worden.</p>"),
+                                                "<p>Het aantal kanalen bepaalt het aantal filter banden dat gebruikt wordt, en dus de spectrale resolutie van de analyse.</p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body"))
@@ -733,10 +725,10 @@ server <- function(input, output, session){
   
   ## Make audio variable, depending on input
   audio_vocoder_C <- reactive({
-    if(input$vocoder_geluidInput_C == 1){ load.wave("www/hello.wav")} # mannenstenm
-    else if(input$vocoder_geluidInput_C == 2) { load.wave("www/female_word.wav")} # vrouwenstem
-    else if(input$vocoder_geluidInput_C == 3) { load.wave("www/short_music.wav") } # kort muziekje
-    else if(input$vocoder_geluidInput_C == 4) { load.wave("www/500ms_sinus_1khz.wav") } # kort muziekje
+    if(input$vocoder_geluidInput_C == 1){ load.wave("www/bus.wav")} # bus
+    else if(input$vocoder_geluidInput_C == 2) { load.wave("www/manzin.wav")} # manzin
+    else if(input$vocoder_geluidInput_C == 3) { load.wave("www/sin-step.wav") } # sinus
+    else if(input$vocoder_geluidInput_C == 4) { load.wave("www/vrouwzin.wav") } # vrouwzin
   })
   
   ## Get parameter values
@@ -771,30 +763,29 @@ server <- function(input, output, session){
       sidebarLayout(
         sidebarPanel(id = "Sidebar6", width = width_sidebar, style = "position:fixed;width:22%;",
                      # Geluid input
-                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q1 {vertical-align: top;}"),
-                        bsButton("q1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qnme1 {vertical-align: top;}"),
+                        bsButton("qnme1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                      fluidRow(
                        column(6,  selectInput("vocoder_geluidInput_NBE", label = "",
-                                              choices = list("Mannenstem" = 1, "Vrouwenstem" = 2, "Muziek" = 3, "Sinus 1kHz" = 4), selected = 1))
+                                              choices = list("Bus" = 1, "Manzin" = 2, "Sinus" = 3, "Vrouwzin" = 4), selected = 1))
                      ),
-                     bsPopover(id="q1", title = "<b>Geluid kiezen</b>",
+                     bsPopover(id="qnme1", title = "<b>Geluid kiezen</b>",
                                content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
-                                                "<p> <b>Mannenstem:</b> Mannenstem die Hello zegt. </p>",
-                                                "<p> <b>Vrouwenstem:</b> Vrouwenstem die Hello zegt. </p>",
-                                                "<p> <b>Muziek:</b> Kort muziekje. </p>",
-                                                "<p> <b>Sinus:</b> Sinus test toon van 1kHz. </p>"),
+                                                "<p> <b>Bus:</b> Een man die het woord bus zegt. </p>",
+                                                "<p> <b>Manzin:</b> Een man die de volgende zin zegt: De mensen werden stil. </p>",
+                                                "<p> <b>Sinus:</b> Een sinus test toon. </p>",
+                                                "<p> <b>Vrouwzin:</b> Een vrouw die de volgende zin zegt: Morgen gaan we naar de stad. </p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")
                      ),
                      # Number of channels input
-                     sliderInput("channelsVocoder_NBE", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#q7 {vertical-align: top;}"),
-                                                           bsButton("q7", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     sliderInput("channelsVocoder_NBE", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#qnme2 {vertical-align: top;}"),
+                                                           bsButton("qnme2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                                  min = 1, max = 4, step = 1, value = 4),
-                     bsPopover(id="q7", title = "<b>Aantal kanalen</b>",
+                     bsPopover(id="qnme2", title = "<b>Aantal kanalen</b>",
                                content = paste0("<p>Kies hier het aantal kanalen.</p>",
-                                                "<p>Een kanaal komt overeen met een elektrode die op de cochlea zal zitten.</p>",
-                                                "<p> Door meerdere kanalen te hebben, zullen er meerdere bandpassfilters gebruikt worden en zal het inkomende geluid dus beter gereconstrueerd kunnen worden.</p>"),
+                                                "<p>Het aantal kanalen bepaalt het aantal filter banden dat gebruikt wordt, en dus de spectrale resolutie van de analyse.</p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body"))
@@ -840,10 +831,10 @@ server <- function(input, output, session){
   
   ## Make audio variable, depending on input
   audio_vocoder_NBE <- reactive({
-    if(input$vocoder_geluidInput_NBE == 1){ load.wave("www/hello.wav")} # mannenstenm
-    else if(input$vocoder_geluidInput_NBE == 2) { load.wave("www/female_word.wav")} # vrouwenstem
-    else if(input$vocoder_geluidInput_NBE == 3) { load.wave("www/short_music.wav") } # kort muziekje
-    else if(input$vocoder_geluidInput_NBE == 4) { load.wave("www/500ms_sinus_1khz.wav") } # kort muziekje
+    if(input$vocoder_geluidInput_NBE == 1){ load.wave("www/bus.wav")} # bus
+    else if(input$vocoder_geluidInput_NBE == 2) { load.wave("www/manzin.wav")} # manzin
+    else if(input$vocoder_geluidInput_NBE == 3) { load.wave("www/sin-step.wav") } # sinus
+    else if(input$vocoder_geluidInput_NBE == 4) { load.wave("www/vrouwzin.wav") } # vrouwzin
   })
   
   ## Get parameter values
@@ -879,37 +870,36 @@ server <- function(input, output, session){
       sidebarLayout(
         sidebarPanel(id = "Sidebar7", width = width_sidebar, style = "position:fixed;width:22%;",
                      # Geluid input
-                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q1 {vertical-align: top;}"),
-                        bsButton("q1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qo1 {vertical-align: top;}"),
+                        bsButton("qo1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                      fluidRow(
                        column(6,  selectInput("vocoder_geluidInput_O", label = "",
-                                              choices = list("Mannenstem" = 1, "Vrouwenstem" = 2, "Muziek" = 3, "Sinus 1kHz" = 4), selected = 1))
+                                              choices = list("Bus" = 1, "Manzin" = 2, "Sinus" = 3, "Vrouwzin" = 4), selected = 1))
                      ),
-                     bsPopover(id="q1", title = "<b>Geluid kiezen</b>",
+                     bsPopover(id="qo1", title = "<b>Geluid kiezen</b>",
                                content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
-                                                "<p> <b>Mannenstem:</b> Mannenstem die Hello zegt. </p>",
-                                                "<p> <b>Vrouwenstem:</b> Vrouwenstem die Hello zegt. </p>",
-                                                "<p> <b>Muziek:</b> Kort muziekje. </p>",
-                                                "<p> <b>Sinus:</b> Sinus test toon van 1kHz. </p>"),
+                                                "<p> <b>Bus:</b> Een man die het woord bus zegt. </p>",
+                                                "<p> <b>Manzin:</b> Een man die de volgende zin zegt: De mensen werden stil. </p>",
+                                                "<p> <b>Sinus:</b> Een sinus test toon. </p>",
+                                                "<p> <b>Vrouwzin:</b> Een vrouw die de volgende zin zegt: Morgen gaan we naar de stad. </p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")
                      ),
                      # Number of channels input
-                     sliderInput("channelsVocoder_O", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#q7 {vertical-align: top;}"),
-                                                         bsButton("q7", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     sliderInput("channelsVocoder_O", h3("Aantal kanalen", style="color:#191970", tags$style(type = "text/css", "#qo2 {vertical-align: top;}"),
+                                                         bsButton("qo2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
                                  min = 1, max = 4, step = 1, value = 4),
-                     bsPopover(id="q7", title = "<b>Aantal kanalen</b>",
+                     bsPopover(id="qo2", title = "<b>Aantal kanalen</b>",
                                content = paste0("<p>Kies hier het aantal kanalen.</p>",
-                                                "<p>Een kanaal komt overeen met een elektrode die op de cochlea zal zitten.</p>",
-                                                "<p> Door meerdere kanalen te hebben, zullen er meerdere bandpassfilters gebruikt worden en zal het inkomende geluid dus beter gereconstrueerd kunnen worden.</p>"),
+                                                "<p>Het aantal kanalen bepaalt het aantal filter banden dat gebruikt wordt, en dus de spectrale resolutie van de analyse.</p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")),
                      # Zoomen
-                     h3("Zoomen", style="color:#191970", tags$style(type = "text/css", "#q2 {vertical-align: top;}"),
-                        bsButton("q2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-                     bsPopover(id="q2", title = "<b>Zoomen</b>",
+                     h3("Zoomen", style="color:#191970", tags$style(type = "text/css", "#qo3 {vertical-align: top;}"),
+                        bsButton("qo3", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     bsPopover(id="qo3", title = "<b>Zoomen</b>",
                                content = paste0("<p><b> Inzoomen </b> in de input en output grafiek kan je doen door het gebied te selecteren met de muis waarop je wilt inzoomen. Vervolgens dubbelklik je erop.</p>",
                                                 "<p><b> Uitzoomen </b> doe je dan weer om gewoon gelijk waar op de grafiek te dubbelklikken, zonder eerst een gebied te selecteren.</p>"),
                                placement = "right",
@@ -966,10 +956,10 @@ server <- function(input, output, session){
   
   ## Make audio variable, depending on input
   audio_vocoder_O <- reactive({
-    if(input$vocoder_geluidInput_O == 1){ load.wave("www/hello.wav")} # mannenstenm
-    else if(input$vocoder_geluidInput_O == 2) { load.wave("www/female_word.wav")} # vrouwenstem
-    else if(input$vocoder_geluidInput_O == 3) { load.wave("www/short_music.wav") } # kort muziekje
-    else if(input$vocoder_geluidInput_O == 4) { load.wave("www/500ms_sinus_1khz.wav") } # kort muziekje
+    if(input$vocoder_geluidInput_O == 1){ load.wave("www/bus.wav")} # bus
+    else if(input$vocoder_geluidInput_O == 2) { load.wave("www/manzin.wav")} # manzin
+    else if(input$vocoder_geluidInput_O == 3) { load.wave("www/sin-step.wav") } # sinus
+    else if(input$vocoder_geluidInput_O == 4) { load.wave("www/vrouwzin.wav") } # vrouwzin
   })
   
   ## Get parameter values
@@ -1009,25 +999,26 @@ server <- function(input, output, session){
   
   ### Play output signal
   conditional_audio_vocoder_O <- reactive({
-    if(input$vocoder_geluidInput_O == 1 && input$channelsVocoder_O == 1){ tags$audio(src = "hello_1channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 1 && input$channelsVocoder_O == 2){ tags$audio(src = "hello_2channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 1 && input$channelsVocoder_O == 3){ tags$audio(src = "hello_3channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 1 && input$channelsVocoder_O == 4){ tags$audio(src = "hello_4channel.wav", type = "audio/wav", controls = NA) }
-    # VROUWENSTEM
-    else if(input$vocoder_geluidInput_O == 2 && input$channelsVocoder_O == 1){ tags$audio(src = "female_1channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 2 && input$channelsVocoder_O == 2){ tags$audio(src = "female_2channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 2 && input$channelsVocoder_O == 3){ tags$audio(src = "female_3channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 2 && input$channelsVocoder_O == 4){ tags$audio(src = "female_4channel.wav", type = "audio/wav", controls = NA) }
-    # KORT MUZIEKJE
-    else if(input$vocoder_geluidInput_O == 3 && input$channelsVocoder_O == 1){ tags$audio(src = "music_1channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 3 && input$channelsVocoder_O == 2){ tags$audio(src = "music_2channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 3 && input$channelsVocoder_O == 3){ tags$audio(src = "music_3channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 3 && input$channelsVocoder_O == 4){ tags$audio(src = "music_4channel.wav", type = "audio/wav", controls = NA) }
+    # BUS
+    if(input$vocoder_geluidInput_O == 1 && input$channelsVocoder_O == 1){ tags$audio(src = "bus_1channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 1 && input$channelsVocoder_O == 2){ tags$audio(src = "bus_2channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 1 && input$channelsVocoder_O == 3){ tags$audio(src = "bus_3channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 1 && input$channelsVocoder_O == 4){ tags$audio(src = "bus_4channel.wav", type = "audio/wav", controls = NA) }
+    # MANZIN
+    else if(input$vocoder_geluidInput_O == 2 && input$channelsVocoder_O == 1){ tags$audio(src = "manzin_1channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 2 && input$channelsVocoder_O == 2){ tags$audio(src = "manzin_2channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 2 && input$channelsVocoder_O == 3){ tags$audio(src = "manzin_3channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 2 && input$channelsVocoder_O == 4){ tags$audio(src = "manzin_4channel.wav", type = "audio/wav", controls = NA) }
     # SINUS
-    else if(input$vocoder_geluidInput_O == 4 && input$channelsVocoder_O == 1){ tags$audio(src = "sinus_1channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 4 && input$channelsVocoder_O == 2){ tags$audio(src = "sinus_2channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 4 && input$channelsVocoder_O == 3){ tags$audio(src = "sinus_3channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 4 && input$channelsVocoder_O == 4){ tags$audio(src = "sinus_4channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 3 && input$channelsVocoder_O == 1){ tags$audio(src = "sinstep_1channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 3 && input$channelsVocoder_O == 2){ tags$audio(src = "sinstep_2channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 3 && input$channelsVocoder_O == 3){ tags$audio(src = "sinstep_3channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 3 && input$channelsVocoder_O == 4){ tags$audio(src = "sinstep_4channel.wav", type = "audio/wav", controls = NA) }
+    # VROUWZIN
+    else if(input$vocoder_geluidInput_O == 4 && input$channelsVocoder_O == 1){ tags$audio(src = "vrouwzin_1channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 4 && input$channelsVocoder_O == 2){ tags$audio(src = "vrouwzin_2channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 4 && input$channelsVocoder_O == 3){ tags$audio(src = "vrouwzin_3channel.wav", type = "audio/wav", controls = NA) }
+    else if(input$vocoder_geluidInput_O == 4 && input$channelsVocoder_O == 4){ tags$audio(src = "vrouwzin_4channel.wav", type = "audio/wav", controls = NA) }
   })
   
   
@@ -1048,25 +1039,25 @@ server <- function(input, output, session){
       sidebarLayout(
         sidebarPanel(id = "SidebarH1", width = width_sidebar, style = "position:fixed;width:22%;",
                      # Input Geluid
-                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q10 {vertical-align: top;}"),
-                        bsButton("q10", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-                     bsPopover(id="q10", title = "<b>Geluid kiezen</b>",
+                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qih1 {vertical-align: top;}"),
+                        bsButton("qih1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     bsPopover(id="qih1", title = "<b>Geluid kiezen</b>",
                                content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
-                                                "<p> <b>Mannenstem:</b> Mannenstem die Hello zegt. </p>",
-                                                "<p> <b>Vrouwenstem:</b> Vrouwenstem die Hello zegt. </p>",
-                                                "<p> <b>Muziek:</b> Kort muziekje. </p>",
-                                                "<p> <b>Sinus:</b> Sinus test toon van 1kHz. </p>"),
+                                                "<p> <b>Bus:</b> Een man die het woord bus zegt. </p>",
+                                                "<p> <b>Manzin:</b> Een man die de volgende zin zegt: De mensen werden stil. </p>",
+                                                "<p> <b>Sinus:</b> Een sinus test toon. </p>",
+                                                "<p> <b>Vrouwzin:</b> Een vrouw die de volgende zin zegt: Morgen gaan we naar de stad. </p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")),
                      fluidRow(
                        column(6,  selectInput("hoorapparaat_geluidInput1", label = "",
-                                              choices = list("Mannenstem" = 1, "Vrouwenstem" = 2, "Muziek" = 3, "Sinus 1kHz" = 4), selected = 1))
+                                              choices = list("Bus" = 1, "Manzin" = 2, "Sinus" = 3, "Vrouwzin" = 4), selected = 1))
                      ),
                      # Zoomen
-                     h3("Zoomen", style="color:#191970", tags$style(type = "text/css", "#q2 {vertical-align: top;}"),
-                        bsButton("q2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-                     bsPopover(id="q2", title = "<b>Zoomen</b>",
+                     h3("Zoomen", style="color:#191970", tags$style(type = "text/css", "#qih2 {vertical-align: top;}"),
+                        bsButton("qih2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     bsPopover(id="qih2", title = "<b>Zoomen</b>",
                                content = paste0("<p><b> Inzoomen </b> in de input en output grafiek kan je doen door het gebied te selecteren met de muis waarop je wilt inzoomen. Vervolgens dubbelklik je erop.</p>",
                                                 "<p><b> Uitzoomen </b> doe je dan weer om gewoon gelijk waar op de grafiek te dubbelklikken, zonder eerst een gebied te selecteren.</p>"),
                                placement = "right",
@@ -1076,9 +1067,7 @@ server <- function(input, output, session){
         mainPanel(
           h2("Input signaal"),
           h5("Een hoorapparaat is een niet-invasieve revalidatie voor mensen met gehoorproblemen."),
-          h5("Je kan in deze module aan de linkerkant het geluid kiezen."),
-          h5("Inzoomen kan je door het gebied waarin je wilt inzoomen te markeren en hierna te dubbelklikken. Uitzoomen doe je dan weer door te dubbelklikken. op de grafiek."),
-          h5("De eerste grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken."),
+          h5("Onderstaande grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken."),
           withSpinner(plotOutput("Input_Hoorapparaat", dblclick = "plot1_ha_dblclick",
                                  brush = brushOpts(id = "plot1_ha_brush", resetOnNew = TRUE))),
           br(),
@@ -1090,7 +1079,7 @@ server <- function(input, output, session){
           br(),
           fluidRow(
             column(6, align="center", offset = 3,
-                   actionButton('jumpToOutput_HA', 'Volgende')
+                   actionButton('jumpToIO_HA', 'Volgende')
             )
           )
         )
@@ -1099,9 +1088,7 @@ server <- function(input, output, session){
       tabPanel("",
                h2("Input signaal"),
                h5("Een hoorapparaat is een niet-invasieve revalidatie voor mensen met gehoorproblemen."),
-               h5("Je kan in deze module aan de linkerkant het geluid kiezen."),
-               h5("Inzoomen kan je door het gebied waarin je wilt inzoomen te markeren en hierna te dubbelklikken. Uitzoomen doe je dan weer door te dubbelklikken. op de grafiek."),
-               h5("De eerste grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken."),
+               h5("Onderstaande grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken."),
                withSpinner(plotOutput("Input_Hoorapparaat", dblclick = "plot1_ha_dblclick",
                                       brush = brushOpts(id = "plot1_ha_brush", resetOnNew = TRUE))),
                br(),
@@ -1121,16 +1108,16 @@ server <- function(input, output, session){
   })
   
   # Volgende
-  observeEvent(input$jumpToOutput_HA, {
+  observeEvent(input$jumpToIO_HA, {
     updateTabsetPanel(session, "inTabSet",
                       selected = "iotab")
   })
   
   conditionalAudio_IH <- reactive({
-    if(input$hoorapparaat_geluidInput1 == 1){ tags$audio(src = "hello.wav", type = "audio/wav", controls = NA) } # mannenstenm
-    else if(input$hoorapparaat_geluidInput1 == 2) { tags$audio(src = "female_word.wav", type = "audio/wav", controls = NA) } # vrouwenstem
-    else if(input$hoorapparaat_geluidInput1 == 3) { tags$audio(src = "short_music.wav", type = "audio/wav", controls = NA) } # kort muziekje
-    else if(input$hoorapparaat_geluidInput1 == 4) { tags$audio(src = "500ms_sinus_1khz.wav", type = "audio/wav", controls = NA) } # kort muziekje
+    if(input$hoorapparaat_geluidInput1 == 1){ tags$audio(src = "bus.wav", type = "audio/wav", controls = NA) } # mannenstenm
+    else if(input$hoorapparaat_geluidInput1 == 2) { tags$audio(src = "manzin.wav", type = "audio/wav", controls = NA) } # vrouwenstem
+    else if(input$hoorapparaat_geluidInput1 == 3) { tags$audio(src = "sin-step.wav", type = "audio/wav", controls = NA) } # kort muziekje
+    else if(input$hoorapparaat_geluidInput1 == 4) { tags$audio(src = "vrouwzin.wav", type = "audio/wav", controls = NA) } # sinus
   })
   
   output$myAudio_IH <- renderUI(conditionalAudio_IH())
@@ -1139,33 +1126,33 @@ server <- function(input, output, session){
   
   ## Plot input signal
   Hoorapparaat_inputSignal <- reactive({
-    ## male
+    ## BUS
     if(input$hoorapparaat_geluidInput1 == 1){
-      sound <- tuneR::readWave("www/hello.wav")
+      sound <- tuneR::readWave("www/bus.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
       plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_input$x, ylim = ranges_ha_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")  
     }
-    ## female
+    ## MANZIN
     else if(input$hoorapparaat_geluidInput1 == 2){
-      sound <- tuneR::readWave("www/female_word.wav")
+      sound <- tuneR::readWave("www/manzin.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
       plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_input$x, ylim = ranges_ha_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")  
     }
-    ## short music
+    ## SINUS
     else if(input$hoorapparaat_geluidInput1 == 3){
-      sound <- tuneR::readWave("www/short_music.wav")
+      sound <- tuneR::readWave("www/sin-step.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
       plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_input$x, ylim = ranges_ha_input$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Input signal")  
     }
-    ## sinus
+    ## VROUWZIN
     else if(input$hoorapparaat_geluidInput1 == 4){
-      sound <- tuneR::readWave("www/500ms_sinus_1khz.wav")
+      sound <- tuneR::readWave("www/vrouwzin.wav")
       s1 <- sound@left / 2^(sound@bit - 1)
       timeArray <- (0:(length(sound)-1)) / sound@samp.rate
       timeArray <- timeArray * 1000 ##scale to milliseconds
@@ -1197,12 +1184,12 @@ server <- function(input, output, session){
       sidebarLayout(
         sidebarPanel(id = "SidebarH3", width = width_sidebar, style = "position:fixed;width:22%;",
                      ## Statische karakteristieken
-                     h3("Statische karakteristieken", style="color:#191970", tags$style(type = "text/css", "#q17 {vertical-align: top;}"),
-                        bsButton("q17", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-                     bsPopover(id="q17", title = "<b>Statische karakteristieken</b>",
-                               content = paste0("<p>Statische eigenschappen zijn belangrijk om de compressieregeling in te stellen.</p>",
-                                                "<p>Een belangrijke parameter hiervoor is de <b>compressiedrempel</b> of ook <b>kniepunt</b>. Dit geeft het niveau weer waarbij de compressor begint te werken. </p>",
-                                                "<p>Een andere belangrijke parameter is de <b>compressie ratio</b>. Deze kan je hier niet instellen, aangezien het gelinked is met de kniepunten.</p>"),
+                     h3("Statische karakteristieken", style="color:#191970", tags$style(type = "text/css", "#qioh1 {vertical-align: top;}"),
+                        bsButton("qioh1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     bsPopover(id="qioh1", title = "<b>Statische karakteristieken</b>",
+                               content = paste0("<p>De statische karakteristieken geven het verband tussen het niveau van het ingangssignaal en de gewenste versterking.</p>",
+                                                "<p>Een belangrijke parameter hiervoor is de <b>compressiedrempel</b>, het eerste <b>kniepunt</b>. Dit geeft het niveau weer waarbij de compressor begint te werken. </p>",
+                                                "<p>Een andere belangrijke parameter is de <b>compressie verhouding</b>. Deze kan je hier niet rechtstreeks instellen, maar wel via de kniepunten.</p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")),
@@ -1306,29 +1293,29 @@ server <- function(input, output, session){
       sidebarLayout(
         sidebarPanel(id = "SidebarH2", width = width_sidebar, style = "position:fixed;width:22%;",
                      # Input Geluid
-                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q10 {vertical-align: top;}"),
-                        bsButton("q10", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-                     bsPopover(id="q10", title = "<b>Geluid kiezen</b>",
+                     h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qoh1 {vertical-align: top;}"),
+                        bsButton("qoh1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     bsPopover(id="qoh1", title = "<b>Geluid kiezen</b>",
                                content = paste0("<p>Kies hier een voorbeeldgeluid. De voorbeeldgeluiden zijn de volgende: </p>",
-                                                "<p> <b>Mannenstem:</b> Mannenstem die Hello zegt. </p>",
-                                                "<p> <b>Vrouwenstem:</b> Vrouwenstem die Hello zegt. </p>",
-                                                "<p> <b>Muziek:</b> Kort muziekje. </p>",
-                                                "<p> <b>Sinus:</b> Sinus test toon van 1kHz. </p>"),
+                                                "<p> <b>Bus:</b> Een man die het woord bus zegt. </p>",
+                                                "<p> <b>Manzin:</b> Een man die de volgende zin zegt: De mensen werden stil. </p>",
+                                                "<p> <b>Sinus:</b> Een sinus test toon. </p>",
+                                                "<p> <b>Vrouwzin:</b> Een vrouw die de volgende zin zegt: Morgen gaan we naar de stad. </p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")),
                      fluidRow(
                        column(6,  selectInput("hoorapparaat_geluidInput_O", label = "",
-                                              choices = list("Mannenstem" = 1, "Vrouwenstem" = 2, "Muziek" = 3, "Sinus 1kHz" = 4), selected = 1))
+                                              choices = list("Bus" = 1, "Manzin" = 2, "Sinus" = 3, "Vrouwzin" = 4), selected = 1))
                      ),
                      ## Dynamische karakteristieken
-                     h3("Dynamische karakteristieken", style="color:#191970", tags$style(type = "text/css", "#q15 {vertical-align: top;}"),
-                        bsButton("q15", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-                     bsPopover(id="q15", title = "<b>Dynamische karakteristieken</b>",
-                               content = paste0("<p>Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden.</p>",
+                     h3("Dynamische karakteristieken", style="color:#191970", tags$style(type = "text/css", "#qoh2 {vertical-align: top;}"),
+                        bsButton("qoh2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     bsPopover(id="qoh2", title = "<b>Dynamische karakteristieken</b>",
+                               content = paste0("<p>De dynamische karakteristieken geven aan hoe het compressiesysteem zich gedraagt bij een verandering in niveau van het inkomend signaal.</p>",
                                                 "<p> Twee parameters zijn hierbij belangrijk: </p>",
-                                                "<p> <b>Attack time:</b> de tijd die het compressiesysteem nodig heeft om zich aan te passen aan een toenemend inkomend signaal. Deze wordt vaak op 5ms ingesteld. </p>",
-                                                "<p> <b>Release time:</b> de tijd die het compressiesysteem nodig heeft om zich aan te passen aan een afnemend inkomend signaal. Deze wordt vaak op 50ms ingesteld. </p>"),
+                                                "<p> <b>Attack time:</b> de tijd die het compressiesysteem nodig heeft om zich aan te passen aan een toenemend inkomend signaal. Deze is typisch klein (ongeveer 5ms). </p>",
+                                                "<p> <b>Release time:</b> de tijd die het compressiesysteem nodig heeft om zich aan te passen aan een afnemend inkomend signaal. Deze is typisch groter (bijvoorbeeld 50ms). </p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")),
@@ -1342,12 +1329,12 @@ server <- function(input, output, session){
                                               value = 50))
                      ),
                      ## Statische karakteristieken
-                     h3("Statische karakteristieken", style="color:#191970", tags$style(type = "text/css", "#q16 {vertical-align: top;}"),
-                        bsButton("q16", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-                     bsPopover(id="q16", title = "<b>Statische karakteristieken</b>",
-                               content = paste0("<p>Statische eigenschappen zijn belangrijk om de compressieregeling in te stellen.</p>",
-                                                "<p>Een belangrijke parameter hiervoor is de <b>compressiedrempel</b> of ook <b>kniepunt</b>. Dit geeft het niveau weer waarbij de compressor begint te werken. </p>",
-                                                "<p>Een andere belangrijke parameter is de <b>compressie ratio</b>. Deze kan je hier niet instellen, aangezien het gelinked is met de kniepunten.</p>"),
+                     h3("Statische karakteristieken", style="color:#191970", tags$style(type = "text/css", "#qoh3 {vertical-align: top;}"),
+                        bsButton("qoh3", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     bsPopover(id="qoh3", title = "<b>Statische karakteristieken</b>",
+                               content = paste0("<p>De statische karakteristieken geven het verband tussen het niveau van het ingangssignaal en de gewenste versterking.</p>",
+                                                "<p>Een belangrijke parameter hiervoor is de <b>compressiedrempel</b>, het eerste <b>kniepunt</b>. Dit geeft het niveau weer waarbij de compressor begint te werken. </p>",
+                                                "<p>Een andere belangrijke parameter is de <b>compressie verhouding</b>. Deze kan je hier niet rechtstreeks instellen, maar wel via de kniepunten.</p>"),
                                placement = "right", 
                                trigger = "hover",
                                options = list(container = "body")),
@@ -1370,10 +1357,16 @@ server <- function(input, output, session){
                                               label = h5("y (dB SPL)"),
                                               value = 69))
                      ),
+                     # Input niveau van het signaal
+                     fluidRow(
+                       column(6, numericInput("inpNiv", label = h4("Input niveau van signaal (dB SPL)"), value = 60
+                       )
+                       )
+                     ),
                      # Zoomen
-                     h3("Zoomen", style="color:#191970", tags$style(type = "text/css", "#q2 {vertical-align: top;}"),
-                        bsButton("q2", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
-                     bsPopover(id="q2", title = "<b>Zoomen</b>",
+                     h3("Zoomen", style="color:#191970", tags$style(type = "text/css", "#qoh4 {vertical-align: top;}"),
+                        bsButton("qoh4", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
+                     bsPopover(id="qoh4", title = "<b>Zoomen</b>",
                                content = paste0("<p><b> Inzoomen </b> in de input en output grafiek kan je doen door het gebied te selecteren met de muis waarop je wilt inzoomen. Vervolgens dubbelklik je erop.</p>",
                                                 "<p><b> Uitzoomen </b> doe je dan weer om gewoon gelijk waar op de grafiek te dubbelklikken, zonder eerst een gebied te selecteren.</p>"),
                                placement = "right",
@@ -1382,7 +1375,7 @@ server <- function(input, output, session){
         ),
         mainPanel(
           h2("Output signaal"),
-          h5("De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte, stillere geluiden meer versterkt moeten worden dan harde, luide geluiden. Een van de grootste uitdagingen is daarom ook om zachte geluiden net hoorbaar te maken, terwijl harde geluiden niet onaangenaam luid worden."),
+          h5("De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte geluiden meer versterkt moeten worden dan harde geluiden. "),
           h5("Verschillende parameters zijn van belang bij het compressiesysteem van een hoorapparaat, en ze onderscheiden zich in dynamische en statische karakteristieken."),
           h5("Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden. De twee parameters die heir van belang zijn, zijn de attack time en de release time. Deze twee parameters kan je aan de linkerzijde van de applicatie instellen, en bekijken hoe de output, en dus compressie, verandert."),
           h5("Statische eigenschappen zijn dan weer belangrijk om de compressieregeling in te stellen. Parameters die hier van belang zijn, zijn onder andere de kniepunten. Ook deze parameters kan je links aanpassen en zo zien hoe het uitgaande signaal verandert."),
@@ -1405,7 +1398,7 @@ server <- function(input, output, session){
     } else {
       tabPanel("",
                h2("Output signaal"),
-               h5("De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte, stillere geluiden meer versterkt moeten worden dan harde, luide geluiden. Een van de grootste uitdagingen is daarom ook om zachte geluiden net hoorbaar te maken, terwijl harde geluiden niet onaangenaam luid worden."),
+               h5("De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte geluiden meer versterkt moeten worden dan harde geluiden. "),
                h5("Verschillende parameters zijn van belang bij het compressiesysteem van een hoorapparaat, en ze onderscheiden zich in dynamische en statische karakteristieken."),
                h5("Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden. De twee parameters die heir van belang zijn, zijn de attack time en de release time. Deze twee parameters kan je aan de linkerzijde van de applicatie instellen, en bekijken hoe de output, en dus compressie, verandert."),
                h5("Statische eigenschappen zijn dan weer belangrijk om de compressieregeling in te stellen. Parameters die hier van belang zijn, zijn onder andere de kniepunten. Ook deze parameters kan je links aanpassen en zo zien hoe het uitgaande signaal verandert."),
@@ -1435,10 +1428,10 @@ server <- function(input, output, session){
   
   ## Make audio variable, depending on input
   audio_HA_O <- reactive({
-    if(input$hoorapparaat_geluidInput_O == 1){ load.wave("www/hello.wav")} # mannenstenm
-    else if(input$hoorapparaat_geluidInput_O == 2) { load.wave("www/female_word.wav") } # vrouwenstem
-    else if(input$hoorapparaat_geluidInput_O == 3) { load.wave("www/short_music.wav") } # kort muziekje
-    else if(input$hoorapparaat_geluidInput_O == 4) { load.wave("www/500ms_sinus_1khz.wav")} # sinus
+    if(input$hoorapparaat_geluidInput_O == 1){ load.wave("www/bus.wav")} # bus
+    else if(input$hoorapparaat_geluidInput_O == 2) { load.wave("www/manzin.wav") } # manzin
+    else if(input$hoorapparaat_geluidInput_O == 3) { load.wave("www/sin-step.wav") } # sinus
+    else if(input$hoorapparaat_geluidInput_O == 4) { load.wave("www/vrouwzin.wav")} # vrouwzin
   })
   
   ## Get parameter values
@@ -1448,55 +1441,27 @@ server <- function(input, output, session){
   kniepunt1_y_O <- reactive({input$kniepunt1y_O})
   kniepunt2_x_O <- reactive({input$kniepunt2x_O})
   kniepunt2_y_O <- reactive({input$kniepunt2y_O})
+  input_niv_O <- reactive({input$inpNiv})
   
   ## Call compress function with selected wav-file and selected/configured parameters
   resultHearingAid_O <- reactive({
-    compress(audio_HA_O()[1:length(audio_HA_O())], list(type='agc'), attackTime_HA_O(), releaseTime_HA_O(), kniepunt1_x_O(), kniepunt1_y_O(), kniepunt2_x_O(), kniepunt2_y_O())
+    compress(audio_HA_O()[1:length(audio_HA_O())], list(type='agc'), attackTime_HA_O(), releaseTime_HA_O(), kniepunt1_x_O(), kniepunt1_y_O(), kniepunt2_x_O(), kniepunt2_y_O(), input_niv_O())
   })
 
   
   
   ## Plot output signal
+  sound_ha <- reactive({as.audioSample(resultHearingAid_O())})
+  s2 <- reactive({sound_ha() / 2^(8 - 1)})
+  ha_out <- reactive({(0:(length(sound_ha())-1)) / sound_ha()$rate})
+  ha_out_ms <- reactive({ha_out() * 1000}) ##scale to milliseconds
+  
   ranges_ha_output <- reactiveValues(x = NULL, y = NULL)
   
   Hoorapparaat_outputSignal <- reactive({
-    ## male
-    if(input$hoorapparaat_geluidInput_O == 1){
-      sound <- tuneR::readWave("www/male_hoorapparaat.wav")
-      s1 <- sound@left / 2^(sound@bit - 1)
-      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
-      timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
-    }
-    ## female
-    else if(input$hoorapparaat_geluidInput_O == 2){
-      sound <- tuneR::readWave("www/female_hoorapparaat.wav")
-      s1 <- sound@left / 2^(sound@bit - 1)
-      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
-      timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
-    }
-    ## short music
-    else if(input$hoorapparaat_geluidInput_O == 3){
-      sound <- tuneR::readWave("www/music_hoorapparaat.wav")
-      s1 <- sound@left / 2^(sound@bit - 1)
-      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
-      timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")   
-    }
-    ## sinus
-    else if(input$hoorapparaat_geluidInput_O == 4){
-      sound <- tuneR::readWave("www/sinus_hoorapparaat.wav")
-      s1 <- sound@left / 2^(sound@bit - 1)
-      timeArray <- (0:(length(sound)-1)) / sound@samp.rate
-      timeArray <- timeArray * 1000 ##scale to milliseconds
-      plot(timeArray, s1, type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")    
-    }
+    plot(ha_out_ms(), s2(), type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
   })
   
-  # Hoorapparaat_outputSignal <- reactive({
-  #   plot(ha_out_ms(), s2(), type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
-  # })
   
   output$Output_Hoorapparaat <- renderPlot({Hoorapparaat_outputSignal()})
   
@@ -1516,14 +1481,16 @@ server <- function(input, output, session){
   
   ### Play output signal
   conditional_audio_hoorapparaat_O <- reactive({
-    # MANNENSTEM
-    if(input$hoorapparaat_geluidInput_O == 1){ tags$audio(src = "male_hoorapparaat.wav", type = "audio/wav", controls = NA) }
-    # VROUWENSTEM
-    else if(input$hoorapparaat_geluidInput_O == 2){ tags$audio(src = "female_hoorapparaat.wav", type = "audio/wav", controls = NA) }
-    # KORT MUZIEKJE
-    else if(input$hoorapparaat_geluidInput_O == 3){ tags$audio(src = "music_hoorapparaat.wav", type = "audio/wav", controls = NA) }
-    # SINUS
-    else if(input$hoorapparaat_geluidInput_O == 4){ tags$audio(src = "sinus_hoorapparaat.wav", type = "audio/wav", controls = NA) }
+    # # MANNENSTEM
+    # if(input$hoorapparaat_geluidInput_O == 1){ tags$audio(src = "male_hoorapparaat.wav", type = "audio/wav", controls = NA) }
+    # # VROUWENSTEM
+    # else if(input$hoorapparaat_geluidInput_O == 2){ tags$audio(src = "female_hoorapparaat.wav", type = "audio/wav", controls = NA) }
+    # # KORT MUZIEKJE
+    # else if(input$hoorapparaat_geluidInput_O == 3){ tags$audio(src = "music_hoorapparaat.wav", type = "audio/wav", controls = NA) }
+    # # SINUS
+    # else if(input$hoorapparaat_geluidInput_O == 4){ tags$audio(src = "sinus_hoorapparaat.wav", type = "audio/wav", controls = NA) }
+    # # KORT ZINNETJE
+    # else if(input$hoorapparaat_geluidInput_O == 5){ tags$audio(src = "zin_hoorapparaat.wav", type = "audio/wav", controls = NA) }
   })
   
   
@@ -1602,64 +1569,32 @@ vocoder <- function(d,fs,nbands, carrier){
     
   }
   
-  # nrColumns <- 5
-  # if(nbands == 1){
-  #   combined_list <- plot_grid(filter_list[[1]], bpfilter_list[[1]], envelope_list[[1]], carrier_list[[1]], noiseenvl_list[[1]], nrow = 1, ncol = nrColumns)
-  # }
-  # else if(nbands == 2){
-  #   second_row <- plot_grid(filter_list[[2]], bpfilter_list[[2]], envelope_list[[2]], carrier_list[[2]], noiseenvl_list[[2]], ncol = nrColumns)
-  #   first_row <- plot_grid(filter_list[[1]], bpfilter_list[[1]], envelope_list[[1]], carrier_list[[1]], noiseenvl_list[[1]], ncol = nrColumns)
-  #   combined_list <- plot_grid(first_row, second_row, nrow = 2)
-  # }
-  # else if(nbands == 3){
-  #   third_row <- plot_grid(filter_list[[3]], bpfilter_list[[3]], envelope_list[[3]], carrier_list[[3]], noiseenvl_list[[3]], ncol = nrColumns)
-  #   second_row <- plot_grid(filter_list[[2]], bpfilter_list[[2]], envelope_list[[2]], carrier_list[[2]], noiseenvl_list[[2]], ncol = nrColumns)
-  #   first_row <- plot_grid(filter_list[[1]], bpfilter_list[[1]], envelope_list[[1]], carrier_list[[1]], noiseenvl_list[[1]], ncol = nrColumns)
-  #   combined_list <- plot_grid(third_row, second_row, first_row, nrow = 3)
-  # }
-  # else if(nbands == 4){
-  #   fourth_row <- plot_grid(filter_list[[4]], bpfilter_list[[4]], envelope_list[[4]], carrier_list[[4]], noiseenvl_list[[4]], ncol = nrColumns)
-  #   third_row <- plot_grid(filter_list[[3]], bpfilter_list[[3]], envelope_list[[3]], carrier_list[[3]], noiseenvl_list[[3]], ncol = nrColumns)
-  #   second_row <- plot_grid(filter_list[[2]], bpfilter_list[[2]], envelope_list[[2]], carrier_list[[2]], noiseenvl_list[[2]], ncol = nrColumns)
-  #   first_row <- plot_grid(filter_list[[1]], bpfilter_list[[1]], envelope_list[[1]], carrier_list[[1]], noiseenvl_list[[1]], ncol = nrColumns)
-  #   combined_list <- plot_grid(fourth_row, third_row, second_row, first_row, nrow = 4)
-  # }
-  
   r=rowSums(out,2)
-  #outputList <- list("res" = r, "filterT" = t_f_list, "envT" = t_env_list, "noiseList" = noise_list, "af_B" = analysis_filters_B, "af_A" = analysis_filters_A, "rf_B" = resynthesis_filters_B, "rf_A" = resynthesis_filters_A)
-  #outputList <- list("res" = r, "plots" = plotList)
-  #return(outputList)
   outputList <- list("r" = r, "fplot" = filter_list, "bpplot" = bpfilter_list, "eplot" = envelope_list, "cplot" = carrier_list, "noiseenvl" = noiseenvl_list)#, "combined" = combined_list) 
-  #return(r)
   return(outputList)
 }
 
 plot_both <- function(T1, T2, fs, titleName){
-  x <- (c(1:length(T1) - 1)) / fs
-  df <- data.frame("xval" = x, "yval1" = T1, "yval2" = T2)
+  x1 <- (c(1:length(T1) - 1)) / fs
+  x2 <- (c(1:length(T2) - 1)) / fs
+  df <- data.frame("xval1" = x1, "xval2" = x2, "yval1" = T1)
   res_plot <- ggplot(data=df, aes(x = xval)) +
-    geom_line(aes(y = yval2), colour="tomato") +
-    geom_line(aes(y = yval1), colour="black") +
+    geom_line(aes(x = xval2, y = yval1), colour="tomato") +
+    geom_line(aes(x = xval1, y = yval1), colour="black") +
     theme(legend.position="none") +
     xlab("Time (s)") +
     ylab("Amplitude") +
     ggtitle(titleName)
-  #plot(x, T, type="l", xlab = "Time (s)", ylab = "Amplitude", main = titleName)
   return(res_plot)
   
 }
 
 
 plot_filterbank <- function(B,A, i, titleName){
-  #filterbank_list <- list(length=ncol(B))
-  #for(i in 1:ncol(B)){
-  #list[H,F] <- freqz(B[,i], A[,i], Fs = 44100)
   resultsPlot <- freqz(B[,i], A[,i], Fs = 44100)
   h <- resultsPlot$h
   f <- resultsPlot$f
   df <- data.frame("xval" = f, "yval" = 20*log10(abs(h)))
-  #semilogx(F, 20*log10(abs(H)))
-  # res_plot <- plot(f,20*log10(abs(h)), log="x", main = titleName, xlab = "Frequency", ylab = "Magnitude")
   res_plot <- ggplot(df, aes(x = xval, y = yval)) +
     scale_x_log10() +
     geom_line(colour = "limegreen") +
@@ -1667,13 +1602,7 @@ plot_filterbank <- function(B,A, i, titleName){
     xlab("Frequency") +
     ylab("Magnitude") +
     ggtitle(titleName)
-  #res_plot <- plot(xy.coords(f, 20*log10(abs(h)), log="x"), log="x", type="l",  main = titleName, xlab = "Frequency", ylab = "Magnitude")
-  #  }
   return(res_plot)
-  #xlabel("Freqeuncy")
-  #ylabel("Magnitude")
-  #set(gca, 'XScale', 'log')
-  
 }
 
 plot_envelope <- function(T1, fs, titleName) {
@@ -1685,7 +1614,6 @@ plot_envelope <- function(T1, fs, titleName) {
     xlab("Time (s)") +
     ylab("Amplitude") +
     ggtitle(titleName)
-  #plot(x, T, type="l", xlab = "Time (s)", ylab = "Amplitude", main = titleName)
   return(res_plot)
 }
 
@@ -1752,6 +1680,134 @@ FFT_band_bins <- function(num_bands){
   else if(num_bands == 1)  widths <- 62  #1
   else print('Illegal number of bands')
   return(widths)
+}
+
+compress <- function(signal, p, attackTime, releaseTime, knee1_x, knee1_y, knee2_x, knee2_y, input_niveau){
+  #--------------------------------------------------------------------------
+  # Perform compression on the input signal
+  # (based on eas/agc.m)
+  #--------------------------------------------------------------------------
+  if(missing(p)){p = list(type = 'agc')}  
+  # if(missing(attackTime)) { attackTime = 5}
+  
+  # Set parameters
+  #--------------------------------------------------------------------------
+  if (!("audio_sample_rate" %in% names(p))){
+    p$audio_sample_rate <- 44100 #audio sample rate of signal
+  }
+  if (!("rms_len" %in% names(p))){
+    p$rms_len <- 10 #length of amplitude defining block in ms
+  }
+  if (!("rms_skip" %in% names(p))){
+    p$rms_skip <- p$rems_len #time skip of amplitude defining block in ms
+  }
+  if (!("rms2dbfac" %in% names(p))){
+    p$rms2dbfac <- input_niveau + 20 #calibration factor to convert RMS values to real dB values ([] -> [dB SPL]) [10^(90/20)]
+  }
+  
+  if (!("attack_time" %in% names(p))){
+    p$attack_time <- attackTime #attack time in ms [5]
+  }
+  if (!("recovery_time" %in% names(p))){
+    p$recovery_time <- releaseTime #recovery time in ms [50]
+  }
+  
+  if (!("start_x" %in% names(p))){
+    p$start_x <- 0 #x coordinate of the start point
+  }
+  if (!("start_y" %in% names(p))){
+    p$start_y <- 0 #y coordinate of the start point
+  }
+  if (!("knee_x" %in% names(p))){
+    p$knee_x <- knee1_x #x coordinate of the knee point [63]
+  }
+  if (!("knee_y" %in% names(p))){
+    p$knee_y <- knee1_y #y coordinate of the knee point [63]
+  }
+  if (!("end_x" %in% names(p))){
+    p$end_x <- knee2_x #x coordinate of the end point [123]
+  }
+  if (!("end_y" %in% names(p))){
+    p$end_y <- knee2_y #y coordinate of the end point [69]
+  }
+  if (!("compression_sample_rate" %in% names(p))){
+    p$compression_sample_rate <- 100 #number of samples per dB (ms)
+  }
+  
+  # block_len = round(p.rms_len/1000*p.audio_sample_rate);
+  # block_skip = round(p.rms_skip/1000*p.audio_sample_rate);
+  block_len = 128
+  block_skip = 128
+  numframes = ceiling(length(signal)/block_skip)
+  cat("numframes: ", numframes)
+  
+  
+  # Apply compression function
+  #--------------------------------------------------------------------------
+  Hv=p$start_y-p$start_x;    # initial value for gain
+  #gains=zeros(size(signal));
+  gains = rep(0, length(signal))
+  #rmsdbl=zeros(numframes,1);
+  rmsdbl = matrix(0, numframes, 1)
+  
+  for(frame in 1:numframes){
+    hier = (frame-1)*block_skip+1
+    
+    if (frame != numframes){data = signal[hier:hier+block_len-1]}
+    else{ # last frame may be shorter
+      data = signal[hier:tail(signal, 1)]
+      block_len = length(data) 
+    } 
+    
+    rms=sqrt(mean(data^2))
+    if (rms == 0) {rmsdb = -100}
+    else{rmsdb = 20*log10(rms*p$rms2dbfac)} # rms value [dB SPL]
+    rmsdbl[frame] = rmsdb
+    
+    # calculate gain H = output sound level - input sound level [dB SPL] (gain for "instantaneous compression")
+    if (rmsdb < p$knee_x){  # linear
+      H = (rmsdb - p$start_x)*((p$knee_y - p$start_y)/(p$knee_x - p$start_x)) + p$start_y
+    }    
+    else if (rmsdb > p$end_x){ # limiting
+      H = p$end_y  
+    }  
+    else{ # compressed
+      H = (rmsdb - p$knee_x)*((p$end_y - p$knee_y)/(p$end_x - p$knee_x)) + p$knee_y  
+    }
+    H = H - rmsdb # gain
+    
+    r = Hv - H # difference in gain (this and previous frame)
+    
+    if (r == 0){ #no gain change
+      gains[hier:hier+block_len-1] = H
+    }
+    
+    if (r < 0){ # decreasing gain -> release
+      tau = p$recovery_time/1000*p$audio_sample_rate
+    }
+    else{ # increasing gain -> attack
+      tau = p$attack_time/1000*p$audio_sample_rate
+    }    
+    
+    beta = exp(-1/tau)
+    
+    for (n in 1:block_len){
+      # gain = Hv * (exp(-1/tau)^(n-1)) + H * (1-exp(-1/tau)^(n-1)) --> H
+      alpha = H + r
+      r = r*beta
+      gains[hier+n-1] = alpha
+    }
+    
+    Hv = alpha # last gain value in this iteration (= reference in next iteration)
+  }
+  
+  gains[length(signal)] = Hv # last gain in last iteration
+  
+  result = signal*10^((gains-20)/20)
+  
+  #returnList <- list("result" = result, "gains" = gains)
+  #return(returnList)
+  return(result)
 }
 
 
