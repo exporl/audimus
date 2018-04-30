@@ -998,31 +998,16 @@ server <- function(input, output, session){
   })
   
   ### Play output signal
-  conditional_audio_vocoder_O <- reactive({
-    # BUS
-    if(input$vocoder_geluidInput_O == 1 && input$channelsVocoder_O == 1){ tags$audio(src = "bus_1channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 1 && input$channelsVocoder_O == 2){ tags$audio(src = "bus_2channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 1 && input$channelsVocoder_O == 3){ tags$audio(src = "bus_3channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 1 && input$channelsVocoder_O == 4){ tags$audio(src = "bus_4channel.wav", type = "audio/wav", controls = NA) }
-    # MANZIN
-    else if(input$vocoder_geluidInput_O == 2 && input$channelsVocoder_O == 1){ tags$audio(src = "manzin_1channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 2 && input$channelsVocoder_O == 2){ tags$audio(src = "manzin_2channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 2 && input$channelsVocoder_O == 3){ tags$audio(src = "manzin_3channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 2 && input$channelsVocoder_O == 4){ tags$audio(src = "manzin_4channel.wav", type = "audio/wav", controls = NA) }
-    # SINUS
-    else if(input$vocoder_geluidInput_O == 3 && input$channelsVocoder_O == 1){ tags$audio(src = "sinstep_1channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 3 && input$channelsVocoder_O == 2){ tags$audio(src = "sinstep_2channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 3 && input$channelsVocoder_O == 3){ tags$audio(src = "sinstep_3channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 3 && input$channelsVocoder_O == 4){ tags$audio(src = "sinstep_4channel.wav", type = "audio/wav", controls = NA) }
-    # VROUWZIN
-    else if(input$vocoder_geluidInput_O == 4 && input$channelsVocoder_O == 1){ tags$audio(src = "vrouwzin_1channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 4 && input$channelsVocoder_O == 2){ tags$audio(src = "vrouwzin_2channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 4 && input$channelsVocoder_O == 3){ tags$audio(src = "vrouwzin_3channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput_O == 4 && input$channelsVocoder_O == 4){ tags$audio(src = "vrouwzin_4channel.wav", type = "audio/wav", controls = NA) }
+  output$myAudio_vocoder_O <- renderUI({
+    seewave::savewav(as.audioSample(unlist(resultVocoder_O()[[1]])),filename = 'www/vocoder_resultaat.wav')
+    
+    tags$audio(id='my_audio_player_V',
+               controls = "controls",
+               tags$source(
+                 src = markdown:::.b64EncodeFile('www/vocoder_resultaat.wav'),
+                 type='audio/ogg; codecs=vorbis'))
   })
-  
-  
-  output$myAudio_vocoder_O <- renderUI(conditional_audio_vocoder_O())
+ 
   
   ### ***************************************************************
   ### ***************************************************************
@@ -1480,21 +1465,15 @@ server <- function(input, output, session){
   })
   
   ### Play output signal
-  conditional_audio_hoorapparaat_O <- reactive({
-    # # MANNENSTEM
-    # if(input$hoorapparaat_geluidInput_O == 1){ tags$audio(src = "male_hoorapparaat.wav", type = "audio/wav", controls = NA) }
-    # # VROUWENSTEM
-    # else if(input$hoorapparaat_geluidInput_O == 2){ tags$audio(src = "female_hoorapparaat.wav", type = "audio/wav", controls = NA) }
-    # # KORT MUZIEKJE
-    # else if(input$hoorapparaat_geluidInput_O == 3){ tags$audio(src = "music_hoorapparaat.wav", type = "audio/wav", controls = NA) }
-    # # SINUS
-    # else if(input$hoorapparaat_geluidInput_O == 4){ tags$audio(src = "sinus_hoorapparaat.wav", type = "audio/wav", controls = NA) }
-    # # KORT ZINNETJE
-    # else if(input$hoorapparaat_geluidInput_O == 5){ tags$audio(src = "zin_hoorapparaat.wav", type = "audio/wav", controls = NA) }
+  output$myAudio_OH <- renderUI({
+    seewave::savewav(as.audioSample(unlist(resultHearingAid_O())),filename = 'www/hoorapparaat_resultaat.wav')
+    
+    tags$audio(id='my_audio_player_HA',
+               controls = "controls",
+               tags$source(
+                 src = markdown:::.b64EncodeFile('www/hoorapparaat_resultaat.wav'),
+                 type='audio/ogg; codecs=vorbis'))
   })
-  
-  
-  output$myAudio_OH <- renderUI(conditional_audio_hoorapparaat_O())
   
 }
 
@@ -1575,12 +1554,11 @@ vocoder <- function(d,fs,nbands, carrier){
 }
 
 plot_both <- function(T1, T2, fs, titleName){
-  x1 <- (c(1:length(T1) - 1)) / fs
-  x2 <- (c(1:length(T2) - 1)) / fs
-  df <- data.frame("xval1" = x1, "xval2" = x2, "yval1" = T1)
+  x <- (c(1:length(T1) - 1)) / fs
+  df <- data.frame("xval" = x, "yval1" = T1, "yval2" = T2)
   res_plot <- ggplot(data=df, aes(x = xval)) +
-    geom_line(aes(x = xval2, y = yval1), colour="tomato") +
-    geom_line(aes(x = xval1, y = yval1), colour="black") +
+    geom_line(aes(y = yval2), colour="tomato") +
+    geom_line(aes(y = yval1), colour="black") +
     theme(legend.position="none") +
     xlab("Time (s)") +
     ylab("Amplitude") +

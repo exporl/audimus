@@ -13,9 +13,28 @@ library(shinycssloaders)
 library(signal)
 library(gridExtra)
 library(gtable)
-
+library(seewave)
 
 ui <- navbarPage("Audimus", id = "inTabSet",
+                 header = singleton(tags$head(HTML(
+                   "<script>
+      (function(i,s,o,g,r,a,m){
+        i['GoogleAnalyticsObject']=r;i[r]=i[r]||
+        function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();
+          a=s.createElement(o), m=s.getElementsByTagName(o)[0];
+          a.async=1;
+          a.src=g;m.parentNode.insertBefore(a,m)
+        })
+      (window, document, 'script',
+        '//www.google-analytics.com/analytics.js','ga');
+      
+        ga('create', 'UA-118345589-1', 'auto');
+        ga('send', 'pageview');
+
+
+      </script>"
+                 ))),
                  
                  ### ======================== ###
                  ###    Information           ###
@@ -59,7 +78,10 @@ ui <- navbarPage("Audimus", id = "inTabSet",
                       p(""),
                       uiOutput('ui_ha')
                     )
-           )
+           ),
+           tags$script("$('ul.nav-tabs').on('click', 'li', function(e) { ga('send', 'event', 'widget', 'nav-tabs link', $(e.currentTarget).children('a').data('value'));});")
+           
+           
 )
   
   
@@ -70,13 +92,14 @@ server <- function(input, output, session){
     updateTabsetPanel(session, "inTabSet",
                       selected = "vocoder_db")
   }) 
+  #ga_collect_event(event_category = "vocoder_db", event_action = "User clicked on Vocoder in information tab.")
   
   # Spring van Info naar hoorapparaat
   observeEvent(input$hoorapparaat_button, {
     updateTabsetPanel(session, "inTabSet",
                       selected = "hoorapparaat_db")
   }) 
-  
+  #ga_collect_event(event_category = "hoorapparaat_db", event_action = "User clicked on Hoorapparaat in information tab.")
   
   # out of 12
   width_sidebar <- 3
@@ -285,32 +308,15 @@ server <- function(input, output, session){
   
 
   ### Play output signal
-  conditional_audio_vocoder_O <- reactive({
-    # BUS
-    if(input$vocoder_geluidInput1 == 1 && input$channelsVocoder == 1){ tags$audio(src = "bus_1channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput1 == 1 && input$channelsVocoder == 2){ tags$audio(src = "bus_2channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput1 == 1 && input$channelsVocoder == 3){ tags$audio(src = "bus_3channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput1 == 1 && input$channelsVocoder == 4){ tags$audio(src = "bus_4channel.wav", type = "audio/wav", controls = NA) }
-    # MANZIN
-    else if(input$vocoder_geluidInput1 == 2 && input$channelsVocoder == 1){ tags$audio(src = "manzin_1channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput1 == 2 && input$channelsVocoder == 2){ tags$audio(src = "manzin_2channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput1 == 2 && input$channelsVocoder == 3){ tags$audio(src = "manzin_3channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput1 == 2 && input$channelsVocoder == 4){ tags$audio(src = "manzin_4channel.wav", type = "audio/wav", controls = NA) }
-    # SINUS
-    else if(input$vocoder_geluidInput1 == 3 && input$channelsVocoder == 1){ tags$audio(src = "sinstep_1channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput1 == 3 && input$channelsVocoder == 2){ tags$audio(src = "sinstep_2channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput1 == 3 && input$channelsVocoder == 3){ tags$audio(src = "sinstep_3channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput1 == 3 && input$channelsVocoder == 4){ tags$audio(src = "sinstep_4channel.wav", type = "audio/wav", controls = NA) }
-    # VROUWZIN
-    else if(input$vocoder_geluidInput1 == 4 && input$channelsVocoder == 1){ tags$audio(src = "vrouwzin_1channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput1 == 4 && input$channelsVocoder == 2){ tags$audio(src = "vrouwzin_2channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput1 == 4 && input$channelsVocoder == 3){ tags$audio(src = "vrouwzin_3channel.wav", type = "audio/wav", controls = NA) }
-    else if(input$vocoder_geluidInput1 == 4 && input$channelsVocoder == 4){ tags$audio(src = "vrouwzin_4channel.wav", type = "audio/wav", controls = NA) }
+  output$myAudio_OV <- renderUI({
+    seewave::savewav(as.audioSample(unlist(resultVocoder()[[1]])),filename = 'www/vocoder_resultaat.wav')
+    
+    tags$audio(id='my_audio_player_V',
+               controls = "controls",
+               tags$source(
+                 src = markdown:::.b64EncodeFile('www/vocoder_resultaat.wav'),
+                 type='audio/ogg; codecs=vorbis'))
   })
-  
-  output$myAudio_OV <- renderUI(conditional_audio_vocoder_O())
-  
-  
   
   ranges_v_output <- reactiveValues(x = NULL, y = NULL)
   
@@ -628,22 +634,15 @@ server <- function(input, output, session){
   
   
   ### Play output signal
-  conditional_audio_hoorapparaat_O <- reactive({
-    # # MANNENSTEM
-    # if(input$hoorapparaat_geluidInput1 == 1){ tags$audio(src = "male_hoorapparaat.wav", type = "audio/wav", controls = NA) }
-    # # VROUWENSTEM
-    # else if(input$hoorapparaat_geluidInput1 == 2){ tags$audio(src = "female_hoorapparaat.wav", type = "audio/wav", controls = NA) }
-    # # KORT MUZIEKJE
-    # else if(input$hoorapparaat_geluidInput1 == 3){ tags$audio(src = "music_hoorapparaat.wav", type = "audio/wav", controls = NA) }
-    # # SINUS
-    # else if(input$hoorapparaat_geluidInput1 == 4){ tags$audio(src = "sinus_hoorapparaat.wav", type = "audio/wav", controls = NA) }
-    # # KORT ZINNETJE
-    # else if(input$hoorapparaat_geluidInput1 == 5){ tags$audio(src = "zin_hoorapparaat.wav", type = "audio/wav", controls = NA) }
+  output$myAudio_OH <- renderUI({
+    seewave::savewav(as.audioSample(unlist(resultHearingAid())),filename = 'www/hoorapparaat_resultaat.wav')
+    
+    tags$audio(id='my_audio_player_HA',
+               controls = "controls",
+               tags$source(
+                 src = markdown:::.b64EncodeFile('www/hoorapparaat_resultaat.wav'),
+                 type='audio/ogg; codecs=vorbis'))
   })
-  
-  
-  output$myAudio_OH <- renderUI(conditional_audio_hoorapparaat_O())
-  
   
   ## Plot output signal
   sound_ha <- reactive({as.audioSample(resultHearingAid())})
@@ -697,6 +696,9 @@ server <- function(input, output, session){
   })
   
   output$IO_diagram <- renderPlot({IO_plot()})
+  
+  
+  
   
 }
 
