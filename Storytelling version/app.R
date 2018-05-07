@@ -11,13 +11,226 @@ library(shinycssloaders)
 library(signal)
 library(gridExtra)
 library(gtable)
+library(markdown)
 
 # out of 12
-width_sidebar <- 3
+
 
 
 
 ui <- navbarPage("Audimus", id = "inTabSet",
+                 
+                 header = singleton(tags$head(HTML(
+                   "<script>
+                   (function(i,s,o,g,r,a,m){
+                   i['GoogleAnalyticsObject']=r;i[r]=i[r]||
+                   function(){
+                   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();
+                   a=s.createElement(o), m=s.getElementsByTagName(o)[0];
+                   a.async=1;
+                   a.src=g;m.parentNode.insertBefore(a,m)
+                   })
+                   (window, document, 'script',
+                   '//www.google-analytics.com/analytics.js','ga');
+
+                   ga('create', 'UA-118467055-1', 'auto');
+                   ga('send', 'pageview');
+
+
+                   // navigation logging
+                   $(document).on('click', '#ci_button', function() {
+                   ga('send', 'event', 'navigation', 'vocoder navigation', 'ci button');
+                   });
+                   
+                   $(document).on('click', '#hoorapparaat_button', function() {
+                   ga('send', 'event', 'navigation', 'ha navigation', 'ha button');
+                   });
+                   
+                   
+                   // **** vocoder logging
+                   // tab input
+                   $(document).on('change', '#vocoder_geluidInput1', function(e) {
+                   ga('send', 'event', 'audio', 'vocoder audio (input tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('click', '#jumpToFilters', function() {
+                   ga('send', 'event', 'navigation', 'vocoder input to filters', 'input to filters');
+                   });
+                   
+                   // tab filters              
+                   $(document).on('change', '#vocoder_geluidInput_F', function(e) {
+                   ga('send', 'event', 'audio', 'vocoder audio (filters tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#channelsVocoder_F', function(e) {
+                   ga('send', 'event', 'characteristics', 'vocoder channels (filters tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('click', '#jumpBackInput', function() {
+                   ga('send', 'event', 'navigation', 'vocoder filters to input', 'filters to input');
+                   });
+                   
+                   $(document).on('click', '#jumpToBPFiltered', function() {
+                   ga('send', 'event', 'navigation', 'vocoder filters to BPF', 'filters to BPF');
+                   });
+                   
+                   // tab BP filtered
+                   $(document).on('change', '#vocoder_geluidInput_BPF', function(e) {
+                   ga('send', 'event', 'audio', 'vocoder audio (BPF tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#channelsVocoder_BPF', function(e) {
+                   ga('send', 'event', 'characteristics', 'vocoder channels (BPF tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('click', '#jumpBackFilters', function() {
+                   ga('send', 'event', 'navigation', 'vocoder BPF to filters', 'BPF to filters');
+                   });
+                   
+                   $(document).on('click', '#jumpToEnvelope', function() {
+                   ga('send', 'event', 'navigation', 'vocoder BPF to envelope', 'BPF to envelope');
+                   });
+                   
+                   // tab Envelope
+                   $(document).on('change', '#vocoder_geluidInput_E', function(e) {
+                   ga('send', 'event', 'audio', 'vocoder audio (Envelope tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#channelsVocoder_E', function(e) {
+                   ga('send', 'event', 'characteristics', 'vocoder channels (Envelope tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('click', '#jumpBackBPFiltered', function() {
+                   ga('send', 'event', 'navigation', 'vocoder envelope to BPF', 'envelope to BPF');
+                   });
+                   
+                   $(document).on('click', '#jumpToCarrier', function() {
+                   ga('send', 'event', 'navigation', 'vocoder envelope to carrier', 'envelope to carrier');
+                   });
+                   
+                   // tab Carrier
+                   $(document).on('change', '#vocoder_geluidInput_C', function(e) {
+                   ga('send', 'event', 'audio', 'vocoder audio (Carrier tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#channelsVocoder_C', function(e) {
+                   ga('send', 'event', 'characteristics', 'vocoder channels (Carrier tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('click', '#jumpBackEnvelope', function() {
+                   ga('send', 'event', 'navigation', 'vocoder carrier to envelope', 'carrier to envelope');
+                   });
+                   
+                   $(document).on('click', '#jumpToNoiseEnvelope', function() {
+                   ga('send', 'event', 'navigation', 'vocoder carrier to NE', 'carrier to NE');
+                   });
+                   
+                   // tab Noiseband*Envelope
+                   $(document).on('change', '#vocoder_geluidInput_NBE', function(e) {
+                   ga('send', 'event', 'audio', 'vocoder audio (NE tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#channelsVocoder_NBE', function(e) {
+                   ga('send', 'event', 'characteristics', 'vocoder channels (NE tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('click', '#jumpBackCarrier', function() {
+                   ga('send', 'event', 'navigation', 'vocoder NBE to carrier', 'NBE to carrier');
+                   });
+                   
+                   $(document).on('click', '#jumpToOutput', function() {
+                   ga('send', 'event', 'navigation', 'vocoder NBE to output', 'NBE to output');
+                   });
+                   
+                   // tab Output
+                   $(document).on('change', '#vocoder_geluidInput_O', function(e) {
+                   ga('send', 'event', 'audio', 'vocoder audio (Output tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#channelsVocoder_O', function(e) {
+                   ga('send', 'event', 'characteristics', 'vocoder channels (Output tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('click', '#jumpBackNoiseEnvelope', function() {
+                   ga('send', 'event', 'navigation', 'vocoder output to NBE', 'output to NBE');
+                   });
+                   
+                   
+                   // **** hoorapparaat logging
+                   // tab input
+                   $(document).on('change', '#hoorapparaat_geluidInput1', function(e) {
+                   ga('send', 'event', 'audio', 'ha audio (input tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('click', '#jumpToIO_HA', function() {
+                   ga('send', 'event', 'navigation', 'ha input to io', 'input to io');
+                   });
+                   
+                   // tab IO diagram
+                   $(document).on('change', '#kniepunt1x_IO', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha kniepunt 1 x (IO tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#kniepunt1y_IO', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha kniepunt 1 y (IO tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#kniepunt2x_IO', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha kniepunt 2 x (IO tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#kniepunt2y_IO', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha kniepunt 2 y (IO tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('click', '#jumpBackInput_HA', function() {
+                   ga('send', 'event', 'navigation', 'ha io to input', 'io to input');
+                   });
+                   
+                   $(document).on('click', '#jumpToOutput_HA', function() {
+                   ga('send', 'event', 'navigation', 'ha io to output', 'io to output');
+                   });
+                   
+                   // tab output
+                   $(document).on('change', '#hoorapparaat_geluidInput_O', function(e) {
+                   ga('send', 'event', 'audio', 'ha audio (output tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#attackTime_O', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha attack Time (output tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#releaseTime_O', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha release Time (output tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#kniepunt1x_IO', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha kniepunt 1 x (output tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#kniepunt1y_IO', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha kniepunt 1 y (output tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#kniepunt2x_IO', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha kniepunt 2 x (output tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#kniepunt2y_IO', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha kniepunt 2 y (output tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#inpNiv', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha input niveau (output tab)', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('click', '#jumpBackIO_HA', function() {
+                   ga('send', 'event', 'navigation', 'ha output to io', 'output to io');
+                   });
+
+                   </script>"
+                   
+                 ))),
                  
                  ### ======================== ###
                  ###    Information           ###
@@ -145,7 +358,8 @@ ui <- navbarPage("Audimus", id = "inTabSet",
                                      )
                             )
                             
-                 )
+                 ),
+                 tags$script("$('ul.nav-tabs').on('click', 'li', function(e) { ga('send', 'event', 'tabchanger', 'nav-tabs link', $(e.currentTarget).children('a').data('value'));});")
                           )
 
 
@@ -158,6 +372,8 @@ ui <- navbarPage("Audimus", id = "inTabSet",
 ### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ###
 
 server <- function(input, output, session){
+  width_sidebar <- 4
+  width_mainpanel <- 8
   
   # Spring van Info naar CI
   observeEvent(input$ci_button, {
@@ -174,14 +390,13 @@ server <- function(input, output, session){
   ### ======================== ###
   ###    Vocoder module        ###
   ### ======================== ###
+
+  
   #* Tab Input *#
-  width_sidebar <- 3
-  
-  
   output$ui_v1 <- renderUI({
     if(input$showpanel_v1){
       sidebarLayout(
-        sidebarPanel(id = "Sidebar1", width = width_sidebar, style = "position:fixed;width:22%;",
+        sidebarPanel(id = "Sidebar1", width = width_sidebar, style = "position:fixed;width:30%;",
                      # Geluid input
                      h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qi1 {vertical-align: top;}"),
                         bsButton("qi1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -210,7 +425,7 @@ server <- function(input, output, session){
                                options = list(container = "body"))
                      
         ),
-        mainPanel(
+        mainPanel(width = width_mainpanel,
           h3("Inkomende signaal"),
           h5("Een vocoder kan worden gebruikt als simulatie van de signaalverwerking in een cochlear implantaat"),
           h5("Onderstaande grafieken geven het inkomende signaal op tijdsdomein weer."),
@@ -333,7 +548,7 @@ server <- function(input, output, session){
   output$ui_v2 <- renderUI({
     if(input$showpanel_v2){
       sidebarLayout(
-        sidebarPanel(id = "Sidebar2", width = width_sidebar, style = "position:fixed;width:22%;",
+        sidebarPanel(id = "Sidebar2", width = width_sidebar, style = "position:fixed;width:30%;",
                      # Geluid input
                      h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qf1 {vertical-align: top;}"),
                         bsButton("qf1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -362,7 +577,7 @@ server <- function(input, output, session){
                                trigger = "hover",
                                options = list(container = "body"))
         ),
-        mainPanel(
+        mainPanel(width = width_mainpanel,
           h2("Bandpass filters"),
           h5("De vocoder van een cochleair implantaat werkt in verschillende stappen."),
           h5("Allereerst wordt het inkomende signaal opgedeeld in een aantal frequentiebanden, zoals je in de eerste kolom (Bandpass) kan zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden. De grafieken voor hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden, zie je in de kolom BP-Filtered signal."),
@@ -442,7 +657,7 @@ server <- function(input, output, session){
   output$ui_v3 <- renderUI({
     if(input$showpanel_v3){
       sidebarLayout(
-        sidebarPanel(id = "Sidebar3", width = width_sidebar, style = "position:fixed;width:22%;",
+        sidebarPanel(id = "Sidebar3", width = width_sidebar, style = "position:fixed;width:30%;",
                      # Geluid input
                      h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qbpf1 {vertical-align: top;}"),
                         bsButton("qbpf1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -471,7 +686,7 @@ server <- function(input, output, session){
                                trigger = "hover",
                                options = list(container = "body"))
         ),
-        mainPanel(
+        mainPanel(width = width_mainpanel,
           h2("BP-gefilterd signaal"),
           h5("Onderstaande grafieken tonen hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden."),
           withSpinner(plotOutput("BPFilteredSignal_Vocoder")),
@@ -547,7 +762,7 @@ server <- function(input, output, session){
   output$ui_v4 <- renderUI({
     if(input$showpanel_v4){
       sidebarLayout(
-        sidebarPanel(id = "Sidebar4", width = width_sidebar, style = "position:fixed;width:22%;",
+        sidebarPanel(id = "Sidebar4", width = width_sidebar, style = "position:fixed;width:30%;",
                      # Geluid input
                      h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qe1 {vertical-align: top;}"),
                         bsButton("qe1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -576,7 +791,7 @@ server <- function(input, output, session){
                                trigger = "hover",
                                options = list(container = "body"))
         ),
-        mainPanel(
+        mainPanel(width = width_mainpanel,
           h2("Omhullende"),
           h5("De volgende stap is de omhullende van het gefilterd signaal te berekenen. De omhullende geeft de veranderingen in volume van een geluidssignaal weer."),
           h5("Mensen kunnen spraak waarnemen met behulp van de omhullende, zonder dat de fijnstructuur aanwezig is. Van zodra de omhullende dus berekend is en door voldoende kanalen kan worden doorgegeven, kunnen CI patienten het inkomende (spraak)signaal begrijpen."),
@@ -655,7 +870,7 @@ server <- function(input, output, session){
   output$ui_v5 <- renderUI({
     if(input$showpanel_v5){
       sidebarLayout(
-        sidebarPanel(id = "Sidebar5", width = width_sidebar, style = "position:fixed;width:22%;",
+        sidebarPanel(id = "Sidebar5", width = width_sidebar, style = "position:fixed;width:30%;",
                      # Geluid input
                      h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qc1 {vertical-align: top;}"),
                         bsButton("qc1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -684,7 +899,7 @@ server <- function(input, output, session){
                                trigger = "hover",
                                options = list(container = "body"))
         ),
-        mainPanel(
+        mainPanel(width = width_mainpanel,
           h2("Carrier"),
           h5("Een volgende stap is om de ontbrekende fijnstructuur toe te voegen. Dit gebeurt met behulp van de carrier, of ook draaggolf."),
           withSpinner(plotOutput("Carrier_Vocoder")),
@@ -761,7 +976,7 @@ server <- function(input, output, session){
   output$ui_v6 <- renderUI({
     if(input$showpanel_v6){
       sidebarLayout(
-        sidebarPanel(id = "Sidebar6", width = width_sidebar, style = "position:fixed;width:22%;",
+        sidebarPanel(id = "Sidebar6", width = width_sidebar, style = "position:fixed;width:30%;",
                      # Geluid input
                      h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qnme1 {vertical-align: top;}"),
                         bsButton("qnme1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -790,7 +1005,7 @@ server <- function(input, output, session){
                                trigger = "hover",
                                options = list(container = "body"))
         ),
-        mainPanel(
+        mainPanel(width = width_mainpanel,
           h2("Modulatie carrier en omhullende"),
           h5("Onderstaande grafieken tonen de modulatie van de carrier samen met het gefilterd signaal."),
           withSpinner(plotOutput("NoisebandFilter_Vocoder")),
@@ -868,7 +1083,7 @@ server <- function(input, output, session){
   output$ui_v7 <- renderUI({
     if(input$showpanel_v7){
       sidebarLayout(
-        sidebarPanel(id = "Sidebar7", width = width_sidebar, style = "position:fixed;width:22%;",
+        sidebarPanel(id = "Sidebar7", width = width_sidebar, style = "position:fixed;width:30%;",
                      # Geluid input
                      h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qo1 {vertical-align: top;}"),
                         bsButton("qo1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -906,7 +1121,7 @@ server <- function(input, output, session){
                                trigger = "hover",
                                options = list(container = "body"))
         ),
-        mainPanel(
+        mainPanel(width = width_mainpanel,
           h2("Uitgaande signaal"),
           h5("De laatste stap is om de signalen van alle kanalen weer samen te brengen tot 1 uitgaand signaal. Het uitgaande signaal kan je in de onderstaande grafiek zien. Je kan dit signaal ook beluisteren door op de knop te klikken."),
           withSpinner(plotOutput("Output_Vocoder", dblclick = "plot2_v_dblclick",
@@ -1022,7 +1237,7 @@ server <- function(input, output, session){
   output$ui_h1 <- renderUI({
     if(input$showpanel_h1){
       sidebarLayout(
-        sidebarPanel(id = "SidebarH1", width = width_sidebar, style = "position:fixed;width:22%;",
+        sidebarPanel(id = "SidebarH1", width = width_sidebar, style = "position:fixed;width:30%;",
                      # Input Geluid
                      h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qih1 {vertical-align: top;}"),
                         bsButton("qih1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -1049,7 +1264,7 @@ server <- function(input, output, session){
                                trigger = "hover",
                                options = list(container = "body"))
         ),
-        mainPanel(
+        mainPanel(width = width_mainpanel,
           h2("Input signaal"),
           h5("Een hoorapparaat is een niet-invasieve revalidatie voor mensen met gehoorproblemen."),
           h5("Onderstaande grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken."),
@@ -1167,7 +1382,7 @@ server <- function(input, output, session){
   output$ui_h3 <- renderUI({
     if(input$showpanel_h3){
       sidebarLayout(
-        sidebarPanel(id = "SidebarH3", width = width_sidebar, style = "position:fixed;width:22%;",
+        sidebarPanel(id = "SidebarH3", width = width_sidebar, style = "position:fixed;width:30%;",
                      ## Statische karakteristieken
                      h3("Statische karakteristieken", style="color:#191970", tags$style(type = "text/css", "#qioh1 {vertical-align: top;}"),
                         bsButton("qioh1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -1198,7 +1413,7 @@ server <- function(input, output, session){
                                               value = 69))
                      )
         ),
-        mainPanel(
+        mainPanel(width = width_mainpanel,
           h2("Input-Output diagram"),
           h5(" Andere belangrijke parameters, die je links niet kan instellen, zijn de compressie ratio en de insertion gain."),
           h5("De compressie ratio is de verhouding tussen de verandering van het input-geluidsnivevau en de verandering van het output-geluidsniveau. Op het IO-diagram komt de compressie ratio overeen met de helling van de lijn tussen kniepunt 1 en kniepunt 2."),
@@ -1276,7 +1491,7 @@ server <- function(input, output, session){
   output$ui_h2 <- renderUI({
     if(input$showpanel_h2){
       sidebarLayout(
-        sidebarPanel(id = "SidebarH2", width = width_sidebar, style = "position:fixed;width:22%;",
+        sidebarPanel(id = "SidebarH2", width = width_sidebar, style = "position:fixed;width:30%;overflow-y:scroll; max-height: 500px;",
                      # Input Geluid
                      h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#qoh1 {vertical-align: top;}"),
                         bsButton("qoh1", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -1343,11 +1558,7 @@ server <- function(input, output, session){
                                               value = 69))
                      ),
                      # Input niveau van het signaal
-                     fluidRow(
-                       column(6, numericInput("inpNiv", label = h4("Input niveau van signaal (dB SPL)"), value = 60
-                       )
-                       )
-                     ),
+                     numericInput("inpNiv", label = h4("Input niveau van signaal (dB SPL)"), value = 60),
                      # Zoomen
                      h3("Zoomen", style="color:#191970", tags$style(type = "text/css", "#qoh4 {vertical-align: top;}"),
                         bsButton("qoh4", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -1358,7 +1569,7 @@ server <- function(input, output, session){
                                trigger = "hover",
                                options = list(container = "body"))
         ),
-        mainPanel(
+        mainPanel(width = width_mainpanel,
           h2("Output signaal"),
           h5("De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte geluiden meer versterkt moeten worden dan harde geluiden. "),
           h5("Verschillende parameters zijn van belang bij het compressiesysteem van een hoorapparaat, en ze onderscheiden zich in dynamische en statische karakteristieken."),

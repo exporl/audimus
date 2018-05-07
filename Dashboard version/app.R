@@ -14,26 +14,114 @@ library(signal)
 library(gridExtra)
 library(gtable)
 library(seewave)
+library(markdown)
+library(mongolite)
+
+
+#library(loggit)
+#setLogFile('C:/Users/anna/Desktop/CW Thesis - Audimus/Dashboard/#loggit.json')
+
+#file.path(#loggit::getLogFile())
+
+# options(mongodb = list(
+#   "host" = "ds111370.mlab.com:11370",
+#   "username" = "ShinyThesis",
+#   "password" = "C0bhc_91"
+# ))
+# databaseName <- "annathesis"
+# collectionName <- "responses"
+# 
+# 
+# saveData <- function(data) {
+#   # Connect to the database
+#   db <- mongolite::mongo(collection = collectionName,
+#               url = sprintf(
+#                 "mongodb://ShinyThesis:C0bhc_91@ds111370.mlab.com:11370/annathesis",
+#                 options()$mongodb$username,
+#                 options()$mongodb$password,
+#                 options()$mongodb$host,
+#                 databaseName))
+#   # Insert the data into the mongo collection as a data.frame
+#   data <- as.data.frame(t(data))
+#   db$insert(data)
+# }
+# 
+# saveData(#loggit::get_logs())
+
+
+
+#loggit("INFO", "app has started")
 
 ui <- navbarPage("Audimus", id = "inTabSet",
                  header = singleton(tags$head(HTML(
                    "<script>
-      (function(i,s,o,g,r,a,m){
-        i['GoogleAnalyticsObject']=r;i[r]=i[r]||
-        function(){
-          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();
-          a=s.createElement(o), m=s.getElementsByTagName(o)[0];
-          a.async=1;
-          a.src=g;m.parentNode.insertBefore(a,m)
-        })
-      (window, document, 'script',
-        '//www.google-analytics.com/analytics.js','ga');
-      
-        ga('create', 'UA-118345589-1', 'auto');
-        ga('send', 'pageview');
-
-
-      </script>"
+                   (function(i,s,o,g,r,a,m){
+                   i['GoogleAnalyticsObject']=r;i[r]=i[r]||
+                   function(){
+                   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();
+                   a=s.createElement(o), m=s.getElementsByTagName(o)[0];
+                   a.async=1;
+                   a.src=g;m.parentNode.insertBefore(a,m)
+                   })
+                   (window, document, 'script',
+                   '//www.google-analytics.com/analytics.js','ga');
+                   
+                   ga('create', 'UA-118345589-1', 'auto');
+                   ga('send', 'pageview');
+                   
+                   
+                   // navigation logging
+                   $(document).on('click', '#ci_button', function(e) {
+                   ga('send', 'event', 'navigation', 'vocoder navigation', 'ci button');
+                   });
+                   
+                   $(document).on('click', '#hoorapparaat_button', function(e) {
+                   ga('send', 'event', 'navigation', 'ha navigation', 'ha button');
+                   });
+                   
+                   // vocoder logging
+                   $(document).on('change', '#vocoder_geluidInput1', function(e) {
+                   ga('send', 'event', 'audio', 'vocoder audio', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#channelsVocoder', function(e) {
+                   ga('send', 'event', 'characteristics', 'vocoder channels', $(e.currentTarget).val());
+                   });
+                   
+                   
+                   // hoorapparaat logging
+                   $(document).on('change', '#hoorapparaat_geluidInput1', function(e) {
+                   ga('send', 'event', 'audio', 'ha audio', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#attackTime', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha attack Time', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#releaseTime', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha release Time', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#kniepunt1x', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha kniepunt 1 x', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#kniepunt1y', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha kniepunt 1 y', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#kniepunt2x', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha kniepunt 2 x', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#kniepunt2y', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha kniepunt 2 y', $(e.currentTarget).val());
+                   });
+                   
+                   $(document).on('change', '#inpNiv', function(e) {
+                   ga('send', 'event', 'characteristics', 'ha input niveau', $(e.currentTarget).val());
+                   });
+                   </script>"
                  ))),
                  
                  ### ======================== ###
@@ -55,55 +143,53 @@ ui <- navbarPage("Audimus", id = "inTabSet",
                                     actionButton('ci_button', img(src = "CI.jpg"), width = '500px'),
                                     actionButton('hoorapparaat_button', img(src = "hoorapparaat.jpg"), width = '500px')
                           )
-                       
-           ),
-           
-           ### ======================== ###
-           ###    Vocoder module        ###
-           ### ======================== ###
-           tabPanel("Vocoder", value = "vocoder_db",
-                    fluidPage(
-                      bsButton("showpanel_v", "Fullscreen", type = "toggle", value = TRUE),
-                      p(""),
-                      uiOutput('ui_v')
-                    )
-           ),
-           
-           ### ======================== ###
-           ###    Hoorapparaat module   ###
-           ### ======================== ###
-           tabPanel("Hoorapparaat", value = "hoorapparaat_db",
-                    fluidPage(
-                      bsButton("showpanel_ha", "Fullscreen", type = "toggle", value = TRUE),
-                      p(""),
-                      uiOutput('ui_ha')
-                    )
-           ),
-           tags$script("$('ul.nav-tabs').on('click', 'li', function(e) { ga('send', 'event', 'widget', 'nav-tabs link', $(e.currentTarget).children('a').data('value'));});")
-           
-           
+                          
+                 ),
+                 
+                 ### ======================== ###
+                 ###    Vocoder module        ###
+                 ### ======================== ###
+                 tabPanel("Vocoder", value = "vocoder_db",
+                          fluidPage(
+                            bsButton("showpanel_v", "Fullscreen", type = "toggle", value = TRUE),
+                            p(""),
+                            uiOutput('ui_v')
+                          )
+                 ),
+                 
+                 ### ======================== ###
+                 ###    Hoorapparaat module   ###
+                 ### ======================== ###
+                 tabPanel("Hoorapparaat", value = "hoorapparaat_db",
+                          fluidPage(
+                            bsButton("showpanel_ha", "Fullscreen", type = "toggle", value = TRUE),
+                            p(""),
+                            uiOutput('ui_ha')
+                          )
+                 )
+
 )
-  
-  
+
+
 server <- function(input, output, session){
   
   # Spring van Info naar CI
   observeEvent(input$ci_button, {
     updateTabsetPanel(session, "inTabSet",
                       selected = "vocoder_db")
+    ##loggit("NAVIGATION", "navigation button clicked", buttonLabel = "vocoder")
   }) 
-  #ga_collect_event(event_category = "vocoder_db", event_action = "User clicked on Vocoder in information tab.")
   
   # Spring van Info naar hoorapparaat
   observeEvent(input$hoorapparaat_button, {
     updateTabsetPanel(session, "inTabSet",
                       selected = "hoorapparaat_db")
+    ##loggit("NAVIGATION", "navigation button clicked", buttonLabel = "hoorapparaat")
   }) 
-  #ga_collect_event(event_category = "hoorapparaat_db", event_action = "User clicked on Hoorapparaat in information tab.")
   
   # out of 12
-  width_sidebar <- 3
-  width_mainpanel <- 9
+  width_sidebar <- 4
+  width_mainpanel <- 8
   
   
   ### ======================== ###
@@ -112,7 +198,7 @@ server <- function(input, output, session){
   output$ui_v <- renderUI({
     if (input$showpanel_v) {
       sidebarLayout(
-        div(id = "Sidebar", sidebarPanel(width = width_sidebar, style = "position:fixed;width:22%;",
+        div(id = "Sidebar", sidebarPanel(width = width_sidebar, style = "position:fixed;width:30%;",
                                          # Input of geluid: either browse for file, or list of given files
                                          h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q3 {vertical-align: top;}"),
                                             bsButton("q3", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -151,39 +237,39 @@ server <- function(input, output, session){
         )),
         mainPanel( width = width_mainpanel,
                    
-          h2("Vocoder"),
-          h5("Een vocoder kan worden gebruikt als simulatie van de signaalverwerking in een cochlear implantaat"),
-          h3("Werking van de vocoder"),
-          bsCollapse(id = "vocoder_mainpanel", 
-                     bsCollapsePanel("Meer informatie", "De eerste grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken.",
-                                     "De vocoder van een cochleair implantaat werkt in verschillende stappen.",
-                                     "Allereerst wordt het inkomende signaal opgedeeld in een aantal frequentiebanden, zoals je in de eerste kolom (Bandpass) kan zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden. De grafieken voor hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden, zie je in de kolom BP-Filtered signal.
+                   h2("Vocoder"),
+                   h5("Een vocoder kan worden gebruikt als simulatie van de signaalverwerking in een cochlear implantaat"),
+                   h3("Werking van de vocoder"),
+                   bsCollapse(id = "vocoder_mainpanel", 
+                              bsCollapsePanel("Meer informatie", "De eerste grafiek geeft het inkomende signaal op tijdsdomein weer. Je kan dit signaal ook beluisteren door op de knop te klikken.",
+                                              "De vocoder van een cochleair implantaat werkt in verschillende stappen.",
+                                              "Allereerst wordt het inkomende signaal opgedeeld in een aantal frequentiebanden, zoals je in de eerste kolom (Bandpass) kan zien. Een bandpassfilter laat slechts een bepaald deel van het inkomende signaal door, bijvoorbeeld een frequentiebereik van 1000-4000 Hz. Alle frequenties die hoger of lager zijn, zullen uit het signaal gefilterd worden. Elke bandpassfilter heeft een ander bereik, waardoor er dus andere frequentiebanden doorgelaten worden. De grafieken voor hoe het signaal eruit ziet, nadat de bandpassfilters erop toegepast werden, zie je in de kolom BP-Filtered signal.
               Het aantal kanalen dat je ingesteld hebt is gelijk aan het aantal bandpassfilters. In een cochlear implantaat is er meestal een kanaal voor elke elektrode in de cochlea.
                                      Vervolgens wordt de omhullende van het gefilterd signaal berekend. Mensen kunnen spraak waarnemen met behulp van de omhullende, zonder dat de fijnstructuur aanwezig is. Zodra de omhullende dus berekend is en door voldoende kanalen kan worden doorgegeven, is het mogelijk voor CI gebruikers om het (spraak)signaal te begrijpen.
                                      Een volgende stap is om de ontbrekende fijnstructuur toe te voegen. Dit gebeurt met behulp van de carrier, of ook draaggolf. In dit geval hebben we gekozen voor een ruisband als draaggolf. De ruisband wordt gemaakt door een witte ruis te filteren met dezelfde BP filters als in de eerste stap. In de laatste kolom zie je de modulatie van de carrier met de omhullende.",
-                                     "De laatste stap is om de signalen van alle kanalen weer samen te brengen tot 1 uitgaand signaal. Het uitgaande signaal kan je in de laatste grafiek zien. Je kan dit signaal ook beluisteren door op de knop te klikken.", style = "default")),
-          withSpinner(plotOutput("Input_Vocoder", dblclick = "plot1_v_dblclick",
-                                 brush = brushOpts(id = "plot1_v_brush", resetOnNew = TRUE))),
-          br(),
-          fluidRow(
-            column(6, align="center", offset = 3,
-                   uiOutput("myAudio_IV")
-            )
-          ),
-          br(),
-          withSpinner(plotOutput("Combined_graphs", height = 750)),
-          withSpinner(plotOutput("Output_Vocoder", dblclick = "plot2_v_dblclick",
-                                 brush = brushOpts(id = "plot2_v_brush", resetOnNew = TRUE))),
-          br(),
-          fluidRow(
-            column(6, align="center", offset = 3,
-                   uiOutput("myAudio_OV")
-            )
-          ),
-          br(),
-          br()
-          )
+                                              "De laatste stap is om de signalen van alle kanalen weer samen te brengen tot 1 uitgaand signaal. Het uitgaande signaal kan je in de laatste grafiek zien. Je kan dit signaal ook beluisteren door op de knop te klikken.", style = "default")),
+                   withSpinner(plotOutput("Input_Vocoder", dblclick = "plot1_v_dblclick",
+                                          brush = brushOpts(id = "plot1_v_brush", resetOnNew = TRUE))),
+                   br(),
+                   fluidRow(
+                     column(6, align="center", offset = 3,
+                            uiOutput("myAudio_IV")
+                     )
+                   ),
+                   br(),
+                   withSpinner(plotOutput("Combined_graphs", height = 750)),
+                   withSpinner(plotOutput("Output_Vocoder", dblclick = "plot2_v_dblclick",
+                                          brush = brushOpts(id = "plot2_v_brush", resetOnNew = TRUE))),
+                   br(),
+                   fluidRow(
+                     column(6, align="center", offset = 3,
+                            uiOutput("myAudio_OV")
+                     )
+                   ),
+                   br(),
+                   br()
         )
+      )
       
     } else {
       tabPanel("",
@@ -219,23 +305,37 @@ server <- function(input, output, session){
                ),
                br(),
                br()
-               )
+      )
     }
   })
   
   ## Get parameter values
-  nrChannels_V <- reactive({input$channelsVocoder})
-  carrier_V <- reactive({input$carrierInput})
+  nrChannels_V <- reactive({
+    ##loggit("CHANNELS", "channels vocoder", channelNr = input$channelsVocoder)
+    input$channelsVocoder
+  })
   x_zoom_factor <- reactive({input$vocoder_zoom_tijd})
   
   ## Make audio variable, depending on input
   audio_vocoder <- reactive({
-    if(input$vocoder_geluidInput1 == 1){ load.wave("www/bus.wav")} # bus
-    else if(input$vocoder_geluidInput1 == 2) { load.wave("www/manzin.wav")} # manzin
-    else if(input$vocoder_geluidInput1 == 3) { load.wave("www/sin-step.wav") } # sinus
-    else if(input$vocoder_geluidInput1 == 4) { load.wave("www/vrouwzin.wav") } # vrouwzin
+    #BUS
+    if(input$vocoder_geluidInput1 == 1){ 
+      ##loggit("AUDIO", "audio vocoder", audioLabel = 1)
+      load.wave("www/bus.wav")} # bus
+    #MANZIN
+    else if(input$vocoder_geluidInput1 == 2) {
+      ##loggit("AUDIO", "audio vocoder", audioLabel = 2)
+      load.wave("www/manzin.wav")} # manzin
+    #SINUS
+    else if(input$vocoder_geluidInput1 == 3) {
+      ##loggit("AUDIO", "audio vocoder", audioLabel = 3)
+      load.wave("www/sin-step.wav") } # sinus
+    #VROUWZIN
+    else if(input$vocoder_geluidInput1 == 4) {
+      ##loggit("AUDIO", "audio vocoder", audioLabel = 4)
+      load.wave("www/vrouwzin.wav") } # vrouwzin
   })
-
+  
   
   conditionalAudio <- reactive({
     if(input$vocoder_geluidInput1 == 1){ tags$audio(src = "bus.wav", type = "audio/wav", controls = NA) } # bus
@@ -289,6 +389,7 @@ server <- function(input, output, session){
   # When a double-click happens, check if there's a brush on the plot.
   # If so, zoom to the brush bounds; if not, reset the zoom.
   observeEvent(input$plot1_v_dblclick, {
+    ##loggit("ZOOM", "zoom input vocoder")
     brush <- input$plot1_v_brush
     if (!is.null(brush)) {
       ranges_v_input$x <- c(brush$xmin, brush$xmax)
@@ -306,7 +407,7 @@ server <- function(input, output, session){
     vocoder(audio_vocoder()[1:length(audio_vocoder())], 22050, nrChannels_V(), "noise") 
   })
   
-
+  
   ### Play output signal
   output$myAudio_OV <- renderUI({
     seewave::savewav(as.audioSample(unlist(resultVocoder()[[1]])),filename = 'www/vocoder_resultaat.wav')
@@ -334,6 +435,7 @@ server <- function(input, output, session){
   # When a double-click happens, check if there's a brush on the plot.
   # If so, zoom to the brush bounds; if not, reset the zoom.
   observeEvent(input$plot2_v_dblclick, {
+    #loggit("ZOOM", "zoom output vocoder")
     brush <- input$plot2_v_brush
     if (!is.null(brush)) {
       ranges_v_output$x <- c(brush$xmin, brush$xmax)
@@ -394,7 +496,7 @@ server <- function(input, output, session){
   output$ui_ha <- renderUI({
     if (input$showpanel_ha) {
       sidebarLayout(
-        sidebarPanel(width = width_sidebar, style = "position:fixed;width:22%;",
+        sidebarPanel(width = width_sidebar, style = "position:fixed;width:30%;overflow-y:scroll; max-height: 500px;",
                      # Input of geluid: either browse for file, or list of given files
                      h3("Geluid", style="color:#191970", tags$style(type = "text/css", "#q7 {vertical-align: top;}"),
                         bsButton("q7", label = "", icon = icon("question"), style = "color: #fff; background-color: #337ab7; border-color: #2e6da4", size = "extra-small")),
@@ -459,11 +561,12 @@ server <- function(input, output, session){
                                               value = 69))
                      ),
                      # Input niveau van het signaal
-                     fluidRow(
-                       column(6, numericInput("inpNiv", label = h4("Input niveau van signaal (dB SPL)"), value = 60
-                                              )
-                              )
-                     ),
+                     numericInput("inpNiv", label = h4("Input niveau van signaal (dB SPL)"), value = 60 ),
+                     # fluidRow(
+                     #   column(6, numericInput("inpNiv", label = h4("Input niveau van signaal (dB SPL)"), value = 60
+                     #   )
+                     #   )
+                     # ),
                      
                      # Zoomen
                      h3("Zoomen", style="color:#191970", tags$style(type = "text/css", "#q2 {vertical-align: top;}"),
@@ -476,34 +579,34 @@ server <- function(input, output, session){
                                options = list(container = "body"))
         ),
         mainPanel( width = width_mainpanel,
-          h2("Hoorapparaat"),
-          h5("Een hoorapparaat is een niet-invasieve revalidatie voor mensen met gehoorproblemen."),
-          h3("Compressiesysteem van een hoorapparaat"),
-          bsCollapse(id = "hoorapparaat_mainpanel", 
-                     bsCollapsePanel("Meer informatie", "De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte geluiden meer versterkt moeten worden dan harde geluiden. ",
-                                     "Verschillende parameters zijn van belang bij het compressiesysteem van een hoorapparaat, en ze onderscheiden zich in dynamische en statische karakteristieken.",
-                                     "Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden. De twee parameters die hier van belang zijn, zijn de attack time en de release time. Deze twee parameters kan je aan de linkerzijde van de applicatie instellen, en bekijken hoe de output, en dus compressie, verandert.",
-                                     "Statische eigenschappen zijn dan weer belangrijk om de compressieregeling in te stellen. Parameters die hier van belang zijn, zijn onder andere de kniepunten. Ook deze parameters kan je links aanpassen en zo zien hoe het uitgaande signaal verandert. Andere belangrijke parameters, die je links niet kan instellen, zijn de compressie ratio en de insertion gain. De compressie ratio is de verhouding tussen de verandering van het input-geluidsnivevau en de verandering van het output-geluidsniveau. Op het IO-diagram komt de compressie ratio overeen met de helling van de lijn tussen kniepunt 1 en kniepunt 2. Een laatste belangrijke parameter is de insertion gain. Deze geeft het verschil weer tussen niet-versterkte en het versterkte signaal, m.a.w. input - output.", style = "default")),
-          withSpinner(plotOutput("Input_Hoorapparaat", dblclick = "plot1_ha_dblclick",
-                                 brush = brushOpts(id = "plot1_ha_brush", resetOnNew = TRUE))),
-          br(),
-          fluidRow(
-            column(6, align="center", offset = 3,
-                   uiOutput("myAudio_IH")
-            )
-          ),
-          br(),
-          withSpinner(plotOutput("IO_diagram", height = 500)),
-          br(),
-          withSpinner(plotOutput("Output_Hoorapparaat", dblclick = "plot2_ha_dblclick",
-                                 brush = brushOpts(id = "plot2_ha_brush", resetOnNew = TRUE))),
-          br(),
-          fluidRow(
-            column(6, align="center", offset = 3,
-                   uiOutput("myAudio_OH")
-            )
-          ),
-          br()
+                   h2("Hoorapparaat"),
+                   h5("Een hoorapparaat is een niet-invasieve revalidatie voor mensen met gehoorproblemen."),
+                   h3("Compressiesysteem van een hoorapparaat"),
+                   bsCollapse(id = "hoorapparaat_mainpanel", 
+                              bsCollapsePanel("Meer informatie", "De werking van een hoorapparaat is gebaseerd op een compressiesysteem, dat als versterker van het inkomende geluid dient. Zo zullen zachte geluiden meer versterkt moeten worden dan harde geluiden. ",
+                                              "Verschillende parameters zijn van belang bij het compressiesysteem van een hoorapparaat, en ze onderscheiden zich in dynamische en statische karakteristieken.",
+                                              "Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden. De twee parameters die hier van belang zijn, zijn de attack time en de release time. Deze twee parameters kan je aan de linkerzijde van de applicatie instellen, en bekijken hoe de output, en dus compressie, verandert.",
+                                              "Statische eigenschappen zijn dan weer belangrijk om de compressieregeling in te stellen. Parameters die hier van belang zijn, zijn onder andere de kniepunten. Ook deze parameters kan je links aanpassen en zo zien hoe het uitgaande signaal verandert. Andere belangrijke parameters, die je links niet kan instellen, zijn de compressie ratio en de insertion gain. De compressie ratio is de verhouding tussen de verandering van het input-geluidsnivevau en de verandering van het output-geluidsniveau. Op het IO-diagram komt de compressie ratio overeen met de helling van de lijn tussen kniepunt 1 en kniepunt 2. Een laatste belangrijke parameter is de insertion gain. Deze geeft het verschil weer tussen niet-versterkte en het versterkte signaal, m.a.w. input - output.", style = "default")),
+                   withSpinner(plotOutput("Input_Hoorapparaat", dblclick = "plot1_ha_dblclick",
+                                          brush = brushOpts(id = "plot1_ha_brush", resetOnNew = TRUE))),
+                   br(),
+                   fluidRow(
+                     column(6, align="center", offset = 3,
+                            uiOutput("myAudio_IH")
+                     )
+                   ),
+                   br(),
+                   withSpinner(plotOutput("IO_diagram", height = 500)),
+                   br(),
+                   withSpinner(plotOutput("Output_Hoorapparaat", dblclick = "plot2_ha_dblclick",
+                                          brush = brushOpts(id = "plot2_ha_brush", resetOnNew = TRUE))),
+                   br(),
+                   fluidRow(
+                     column(6, align="center", offset = 3,
+                            uiOutput("myAudio_OH")
+                     )
+                   ),
+                   br()
         )
       )
     } else {
@@ -517,7 +620,7 @@ server <- function(input, output, session){
                                           "Dynamische eigenschappen zijn belangrijk in het compressiesysteem aangezien het inkomende signaal continu verandert en dus het uitgaande signaal continu aangepast moet worden. De twee parameters die hier van belang zijn, zijn de attack time en de release time. Deze twee parameters kan je aan de linkerzijde van de applicatie instellen, en bekijken hoe de output, en dus compressie, verandert.",
                                           "Statische eigenschappen zijn dan weer belangrijk om de compressieregeling in te stellen. Parameters die hier van belang zijn, zijn onder andere de kniepunten. Ook deze parameters kan je links aanpassen en zo zien hoe het uitgaande signaal verandert. Andere belangrijke parameters, die je links niet kan instellen, zijn de compressie ratio en de insertion gain. De compressie ratio is de verhouding tussen de verandering van het input-geluidsnivevau en de verandering van het output-geluidsniveau. Op het IO-diagram komt de compressie ratio overeen met de helling van de lijn tussen kniepunt 1 en kniepunt 2. Een laatste belangrijke parameter is de insertion gain. Deze geeft het verschil weer tussen niet-versterkte en het versterkte signaal, m.a.w. input - output.", style = "default")),
                withSpinner(plotOutput("Input_Hoorapparaat", dblclick = "plot1_ha_dblclick",
-                                                              brush = brushOpts(id = "plot1_ha_brush", resetOnNew = TRUE))),
+                                      brush = brushOpts(id = "plot1_ha_brush", resetOnNew = TRUE))),
                br(),
                fluidRow(
                  column(6, align="center", offset = 3,
@@ -528,7 +631,7 @@ server <- function(input, output, session){
                withSpinner(plotOutput("IO_diagram", height = 500)),
                br(),
                withSpinner(plotOutput("Output_Hoorapparaat", dblclick = "plot2_ha_dblclick",
-                                                                brush = brushOpts(id = "plot2_ha_brush", resetOnNew = TRUE))),
+                                      brush = brushOpts(id = "plot2_ha_brush", resetOnNew = TRUE))),
                br(),
                fluidRow(
                  column(6, align="center", offset = 3,
@@ -542,10 +645,22 @@ server <- function(input, output, session){
   
   ## Make audio variable, depending on input
   audio_HA <- reactive({
-    if(input$hoorapparaat_geluidInput1 == 1){ load.wave("www/bus.wav") } # bus
-    else if(input$hoorapparaat_geluidInput1 == 2) { load.wave("www/manzin.wav")} # manzin
-    else if(input$hoorapparaat_geluidInput1 == 3) { load.wave("www/sin-step.wav") } # sinus
-    else if(input$hoorapparaat_geluidInput1 == 4) { load.wave("www/vrouwzin.wav")} # vrouwzin
+    #BUS
+    if(input$hoorapparaat_geluidInput1 == 1){
+      #loggit("AUDIO", "audio hoorapparaat", audioLabel = 1)
+      load.wave("www/bus.wav") } # bus
+    #MANZIN
+    else if(input$hoorapparaat_geluidInput1 == 2) {
+      #loggit("AUDIO", "audio hoorapparaat", audioLabel = 2)
+      load.wave("www/manzin.wav")} # manzin
+    #SINUS
+    else if(input$hoorapparaat_geluidInput1 == 3) {
+      #loggit("AUDIO", "audio hoorapparaat", audioLabel = 3)
+      load.wave("www/sin-step.wav") } # sinus
+    #VROUWZIN
+    else if(input$hoorapparaat_geluidInput1 == 4) {
+      #loggit("AUDIO", "audio hoorapparaat", audioLabel = 4)
+      load.wave("www/vrouwzin.wav")} # vrouwzin
   })
   
   ## Play input sound
@@ -606,6 +721,7 @@ server <- function(input, output, session){
   # When a double-click happens, check if there's a brush on the plot.
   # If so, zoom to the brush bounds; if not, reset the zoom.
   observeEvent(input$plot1_ha_dblclick, {
+    #loggit("ZOOM", "Zoom input hoorapparaat")
     brush <- input$plot1_ha_brush
     if (!is.null(brush)) {
       ranges_ha_input$x <- c(brush$xmin, brush$xmax)
@@ -619,13 +735,34 @@ server <- function(input, output, session){
   
   
   ## Get parameter values
-  attackTime_HA <- reactive({input$attackTime})
-  releaseTime_HA <- reactive({input$releaseTime})
-  kniepunt1_x <- reactive({input$kniepunt1x})
-  kniepunt1_y <- reactive({input$kniepunt1y})
-  kniepunt2_x <- reactive({input$kniepunt2x})
-  kniepunt2_y <- reactive({input$kniepunt2y})
-  inputNiv <- reactive({input$inpNiv})
+  attackTime_HA <- reactive({
+    #loggit("CHARACTERISTICS", "Attack hoorapparaat", charLabel = input$attackTime)
+    input$attackTime
+  })
+  releaseTime_HA <- reactive({
+    #loggit("CHARACTERISTICS", "Release hoorapparaat", charLabel = input$releaseTime)
+    input$releaseTime
+  })
+  kniepunt1_x <- reactive({
+    #loggit("CHARACTERISTICS", "KnieP1x hoorapparaat", charLabel = input$kniepunt1x)
+    input$kniepunt1x
+  })
+  kniepunt1_y <- reactive({
+    #loggit("CHARACTERISTICS", "KnieP1y hoorapparaat", charLabel = input$kniepunt1y)
+    input$kniepunt1y
+  })
+  kniepunt2_x <- reactive({
+    #loggit("CHARACTERISTICS", "KnieP2x hoorapparaat", charLabel = input$kniepunt2x)
+    input$kniepunt2x
+  })
+  kniepunt2_y <- reactive({
+    #loggit("CHARACTERISTICS", "KnieP2y hoorapparaat", charLabel = input$kniepunt2y)
+    input$kniepunt2y
+    })
+  inputNiv <- reactive({
+    #loggit("CHARACTERISTICS", "InputNiveau hoorapparaat", charLabel = input$inpNiv)
+    input$inpNiv
+  })
   
   ## Call compress function with selected wav-file and selected/configured parameters
   resultHearingAid <- reactive({
@@ -649,18 +786,19 @@ server <- function(input, output, session){
   s2 <- reactive({sound_ha() / 2^(8 - 1)})
   ha_out <- reactive({(0:(length(sound_ha())-1)) / sound_ha()$rate})
   ha_out_ms <- reactive({ha_out() * 1000}) ##scale to milliseconds
-   
-   ranges_ha_output <- reactiveValues(x = NULL, y = NULL)
-   
-   Hoorapparaat_outputSignal <- reactive({
-     plot(ha_out_ms(), s2(), type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
-   })
+  
+  ranges_ha_output <- reactiveValues(x = NULL, y = NULL)
+  
+  Hoorapparaat_outputSignal <- reactive({
+    plot(ha_out_ms(), s2(), type="l", col="black", xlim = ranges_ha_output$x, ylim = ranges_ha_output$y, xlab = "Time (ms)", ylab = "Amplitude", main = "Output signal")  
+  })
   
   output$Output_Hoorapparaat <- renderPlot({Hoorapparaat_outputSignal()})
   
   # When a double-click happens, check if there's a brush on the plot.
   # If so, zoom to the brush bounds; if not, reset the zoom.
   observeEvent(input$plot2_ha_dblclick, {
+    #loggit("ZOOM", "zoom output hoorapparaat")
     brush <- input$plot2_ha_brush
     if (!is.null(brush)) {
       ranges_ha_output$x <- c(brush$xmin, brush$xmax)
@@ -696,9 +834,6 @@ server <- function(input, output, session){
   })
   
   output$IO_diagram <- renderPlot({IO_plot()})
-  
-  
-  
   
 }
 
@@ -1006,7 +1141,8 @@ compress <- function(signal, p, attackTime, releaseTime, knee1_x, knee1_y, knee2
   
   gains[dim(signal)] = Hv # last gain in last iteration
   
-  result = signal*10^((gains-20)/20)
+  #result = signal*10^((gains-20)/20)   ## should have been used, however, sound was not playable if this was used.
+  result = signal*10^(gains/20)
   
   return(result)
 }
